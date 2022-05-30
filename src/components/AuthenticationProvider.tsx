@@ -79,14 +79,7 @@ const AuthenticationProvider = ({ children }: IProps) => {
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{
-        wallet: context.wallet,
-        error: context.error,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={context}>{children}</AuthContext.Provider>
   );
 };
 
