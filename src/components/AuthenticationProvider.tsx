@@ -9,46 +9,31 @@ interface IAuthenticationContext {
   walletIsInstalled: boolean;
   walletIsConnected: boolean;
   currentAccount: any;
-  error: null;
+  error: any;
 }
 
-export const AuthContext = createContext<IAuthenticationContext>({
-  accessingWallet: true,
-  walletIsInstalled: window.ethereum !== undefined,
-  walletIsConnected: false,
-  currentAccount: null,
-  error: null,
-});
+export const AuthContext = createContext<IAuthenticationContext | undefined>(
+  undefined
+);
 
 const AuthenticationProvider = ({ children }: IProps) => {
-  const [wallet, setWallet] = useState({
-    accessing: true,
-    installed: window.ethereum !== undefined,
-    connected: false,
-    account: null,
+  const [wallet, setWallet] = useState<IAuthenticationContext>({
+    accessingWallet: true,
+    walletIsInstalled: window.ethereum !== undefined,
+    walletIsConnected: false,
+    currentAccount: null,
     error: null,
   });
-
-  const handleWalletManipulationError = (error: any) => {
-    console.error(error);
-    setWallet({
-      accessing: false,
-      account: null,
-      connected: false,
-      installed: false,
-      error,
-    });
-  };
 
   const setWalletInfo = (accounts: any) => {
     const connected = accounts.length > 0;
     const account = connected ? accounts[0] : null;
 
     setWallet({
-      accessing: false,
-      account,
-      connected,
-      installed: true,
+      accessingWallet: false,
+      currentAccount: account,
+      walletIsConnected: connected,
+      walletIsInstalled: true,
       error: null,
     });
     console.log(accounts);
@@ -61,7 +46,13 @@ const AuthenticationProvider = ({ children }: IProps) => {
       });
       setWalletInfo(response);
     } catch (err) {
-      handleWalletManipulationError(err);
+      setWallet({
+        accessingWallet: false,
+        currentAccount: null,
+        walletIsConnected: false,
+        walletIsInstalled: false,
+        error: err,
+      });
     }
   };
 
@@ -71,23 +62,26 @@ const AuthenticationProvider = ({ children }: IProps) => {
       checkWalletConnection();
     } else {
       setWallet({
-        accessing: false,
-        account: null,
-        connected: false,
-        installed: false,
+        accessingWallet: false,
+        currentAccount: null,
+        walletIsConnected: false,
+        walletIsInstalled: false,
         error: null,
       });
     }
+    return () => {
+      window.ethereum?.removeListener("accountsChanged", setWalletInfo);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        accessingWallet: wallet.accessing,
-        walletIsInstalled: wallet.installed,
-        currentAccount: wallet.account,
-        walletIsConnected: wallet.connected,
+        accessingWallet: wallet.accessingWallet,
+        walletIsInstalled: wallet.walletIsInstalled,
+        currentAccount: wallet.currentAccount,
+        walletIsConnected: wallet.walletIsConnected,
         error: wallet.error,
       }}
     >
