@@ -1,11 +1,11 @@
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import HomePage from "./components/HomePage";
-import CdpDetailsPage from "./components/CdpDetailsPage";
+import CdpList from "./components/CDP/CdpList";
+import CdpDetails from "./components/CDP/CdpDetails";
 import Layout from "./components/Layout";
 import NotFoundPage from "./components/NotFoundPage";
 import NotAllowedPage from "./components/NotAllowedPage";
-import AuthenticationProvider from "./components/AuthenticationProvider";
+import AuthenticationProvider from "./components/Provider/AuthenticationProvider";
 import RequireWallet from "./components/RequireWallet";
 import ErrorPage from "./components/ErrorPage";
 
@@ -19,7 +19,7 @@ function App() {
               path="/"
               element={
                 <RequireWallet>
-                  <HomePage />
+                  <CdpList />
                 </RequireWallet>
               }
             />
@@ -27,14 +27,14 @@ function App() {
               path="cdp/:cdpId"
               element={
                 <RequireWallet>
-                  <CdpDetailsPage />
+                  <CdpDetails />
                 </RequireWallet>
               }
             />
             <Route path="/404" element={<NotFoundPage />} />
             <Route path="/wallet-missing" element={<NotAllowedPage />} />
-            <Route path="/error" element={<NotAllowedPage />} />
-            <Route path="*" element={<ErrorPage />} />
+            <Route path="/error" element={<ErrorPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Layout>
       </BrowserRouter>

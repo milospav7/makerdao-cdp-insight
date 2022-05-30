@@ -1,19 +1,10 @@
-import { createContext, useEffect, useState } from "react";
-
-interface IProps {
-  children: React.ReactNode;
-}
-
-interface IAuthenticationWallet {
-  accessing: boolean;
-  installed: boolean;
-  connected: boolean;
-  account: any;
-}
-interface IAuthenticationContext {
-  wallet: IAuthenticationWallet;
-  error: any;
-}
+import { useEffect, useState } from "react";
+import { AuthContext } from "./hooks";
+import {
+  IAuthenticationContext,
+  IAuthenticationProviderProps,
+  IAuthenticationWallet,
+} from "./interfaces";
 
 const walletInitialState: IAuthenticationWallet = {
   accessing: true,
@@ -22,11 +13,7 @@ const walletInitialState: IAuthenticationWallet = {
   installed: false,
 };
 
-export const AuthContext = createContext<IAuthenticationContext | undefined>(
-  undefined
-);
-
-const AuthenticationProvider = ({ children }: IProps) => {
+const AuthenticationProvider = ({ children }: IAuthenticationProviderProps) => {
   const [context, setContext] = useState<IAuthenticationContext>({
     wallet: walletInitialState,
     error: null,
