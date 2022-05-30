@@ -32,7 +32,7 @@ const AuthenticationProvider = ({ children }: IProps) => {
     error: null,
   });
 
-  const setWalletInfo = (accounts: any) => {
+  const updateWallet = (accounts: any) => {
     const connected = accounts.length > 0;
     const account = connected ? accounts[0] : null;
 
@@ -48,12 +48,12 @@ const AuthenticationProvider = ({ children }: IProps) => {
     console.log(accounts);
   };
 
-  const checkWalletConnection = async () => {
+  const setInitialWallet = async () => {
     try {
       const response = await window.ethereum!.request({
         method: "eth_accounts",
       });
-      setWalletInfo(response);
+      updateWallet(response);
     } catch (err) {
       setContext({
         wallet: walletInitialState,
@@ -64,16 +64,17 @@ const AuthenticationProvider = ({ children }: IProps) => {
 
   useEffect(() => {
     if (window.ethereum !== undefined) {
-      window.ethereum.on("accountsChanged", setWalletInfo);
-      checkWalletConnection();
+      window.ethereum.on("accountsChanged", updateWallet);
+      setInitialWallet();
     } else {
       setContext({
         wallet: { ...walletInitialState, accessing: false },
         error: null,
       });
     }
+
     return () => {
-      window.ethereum?.removeListener("accountsChanged", setContext);
+      window.ethereum?.removeListener("accountsChanged", updateWallet);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
