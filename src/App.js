@@ -7,6 +7,7 @@ import NotFoundPage from "./components/NotFoundPage";
 import NotAllowedPage from "./components/NotAllowedPage";
 import AuthenticationProvider from "./components/AuthenticationProvider";
 import RequireWallet from "./components/RequireWallet";
+import ErrorPage from "./components/ErrorPage";
 
 function App() {
   return (
@@ -31,8 +32,9 @@ function App() {
               }
             />
             <Route path="/404" element={<NotFoundPage />} />
-            <Route path="/warning" element={<NotAllowedPage />} />
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="/wallet-missing" element={<NotAllowedPage />} />
+            <Route path="/error" element={<NotAllowedPage />} />
+            <Route path="*" element={<ErrorPage />} />
           </Routes>
         </Layout>
       </BrowserRouter>

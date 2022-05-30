@@ -7,12 +7,13 @@ interface IProps {
 }
 
 const RequireWallet = ({ children }: IProps) => {
-  const { accessingWallet, walletIsInstalled } = useAuthContext();
+  const { accessingWallet, walletIsInstalled, error } = useAuthContext();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!accessingWallet && !walletIsInstalled) navigate("/warning");
-  }, [accessingWallet, navigate, walletIsInstalled]);
+    if (!accessingWallet && !walletIsInstalled) navigate("/wallet-missing");
+    else if (error) navigate("/error");
+  }, [accessingWallet, error, navigate, walletIsInstalled]);
 
   if (accessingWallet) return <div>Loading wallet</div>;
 
