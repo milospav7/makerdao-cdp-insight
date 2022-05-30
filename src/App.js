@@ -5,20 +5,38 @@ import CdpDetailsPage from "./components/CdpDetailsPage";
 import Layout from "./components/Layout";
 import NotFoundPage from "./components/NotFoundPage";
 import NotAllowedPage from "./components/NotAllowedPage";
+import AuthenticationProvider from "./components/AuthenticationProvider";
+import RequireWallet from "./components/RequireWallet";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="cdp/:cdpId" element={<CdpDetailsPage />} />
-          <Route path="/404" element={<NotFoundPage />} />
-          <Route path="/warning" element={<NotAllowedPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
+    <AuthenticationProvider>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <RequireWallet>
+                  <HomePage />
+                </RequireWallet>
+              }
+            />
+            <Route
+              path="cdp/:cdpId"
+              element={
+                <RequireWallet>
+                  <CdpDetailsPage />
+                </RequireWallet>
+              }
+            />
+            <Route path="/404" element={<NotFoundPage />} />
+            <Route path="/warning" element={<NotAllowedPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Layout>
+      </BrowserRouter>
+    </AuthenticationProvider>
   );
 }
 
