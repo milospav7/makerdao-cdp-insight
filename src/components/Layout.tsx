@@ -5,8 +5,8 @@ interface IProps {
 const Layout = ({ children }: IProps) => {
   return (
     <div>
-      <div>Ovde ide meni</div>
-      <div>{children}</div>
+      <div className="text-center py-3 h3 app-header">MakerDAO CDP Insight</div>
+      <div className="container py-1">{children}</div>
     </div>
   );
 };
