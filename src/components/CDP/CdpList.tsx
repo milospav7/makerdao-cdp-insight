@@ -3,29 +3,37 @@ import { Col, Form, Row, Table } from "react-bootstrap";
 import Web3 from "web3";
 import { DebouncedInput } from "../shared/DebouncedInput";
 import Contract from "../../contracts/VaultInfo/Contract";
+import { bytesToString } from "@defisaver/tokens/esm/utils";
 
-type CollateralType = "ETH" | "WBTC" | "USDC";
+type CollateralType = "ETH-A" | "WBTC-A" | "USDC-A";
 interface InputsState {
   type: CollateralType;
   cdpId: string | null;
 }
-const collateralTypes: CollateralType[] = ["ETH", "WBTC", "USDC"];
+const collateralTypes: CollateralType[] = ["ETH-A", "WBTC-A", "USDC-A"];
+
+const isTargetType = (ilk: string, expectedType: string) => {
+  const encoded = bytesToString(ilk);
+  return encoded === expectedType;
+};
+
+const isExistingCdp = (cdp: any) =>
+  cdp.owner !== "0x0000000000000000000000000000000000000000";
 
 const resolveCdpsInParallel = async (
-  id: number,
+  inputId: number,
+  inputType: CollateralType,
   getter: (id: number) => any
 ) => {
   let retreivedCdps: any[] = [];
   let topNotReached = true;
   let bottomNotReached = true;
-  let currentTopId = id;
-  let currentBottomId = id - 1;
+  let currentTopId = inputId;
+  let currentBottomId = inputId - 1;
   const parallelismDegree = 5;
 
-  while (
-    retreivedCdps.length < 20 ||
-    (retreivedCdps.length < 20 && !topNotReached && !bottomNotReached)
-  ) {
+  while (retreivedCdps.length < 20 && (topNotReached || bottomNotReached)) {
+    console.log(topNotReached, bottomNotReached);
     const topIds = [...Array(parallelismDegree).keys()].map(
       (x) => currentTopId + x
     );
@@ -38,13 +46,24 @@ const resolveCdpsInParallel = async (
       bottomIds.map((id) => getter(id))
     );
 
-    bottomIdsResponse.forEach((resp) => {
-      if (retreivedCdps.length < 20) retreivedCdps.push(resp);
-    });
+    const filteredBottomResponse = bottomIdsResponse.filter(
+      (cdp) => isExistingCdp(cdp) && isTargetType(cdp.ilk, inputType)
+    );
+    const filteredTopResponse = topIdsResponse.filter(
+      (cdp) => isExistingCdp(cdp) && isTargetType(cdp.ilk, inputType)
+    );
 
-    topIdsResponse.forEach((resp) => {
-      if (retreivedCdps.length < 20) retreivedCdps.push(resp);
-    });
+    if (filteredBottomResponse.length === 0) bottomNotReached = false;
+    else
+      filteredBottomResponse.forEach((cdp) => {
+        if (retreivedCdps.length < 20) retreivedCdps.push(cdp);
+      });
+
+    if (filteredTopResponse.length === 0) topNotReached = false;
+    else
+      filteredTopResponse.forEach((cdp) => {
+        if (retreivedCdps.length < 20) retreivedCdps.push(cdp);
+      });
   }
 
   console.log("length", retreivedCdps);
@@ -53,7 +72,7 @@ const resolveCdpsInParallel = async (
 const CdpList = () => {
   const [cdps, setCdps] = useState([]);
   const [inputs, setInputs] = useState<InputsState>({
-    type: "ETH",
+    type: "ETH-A",
     cdpId: "",
   });
 
@@ -64,8 +83,10 @@ const CdpList = () => {
       const { abi, addres } = Contract;
       const contract = new web3.eth.Contract(abi, addres);
       const method = (id: number) => contract.methods.getCdpInfo(id).call();
-      resolveCdpsInParallel(id, method);
-    } catch (err) {}
+      resolveCdpsInParallel(id, type, method);
+    } catch (err) {
+      console.log("errorr");
+    }
   };
 
   const updateCollateralType = (ev: React.ChangeEvent<HTMLSelectElement>) =>
