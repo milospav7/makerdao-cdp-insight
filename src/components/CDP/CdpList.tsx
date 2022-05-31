@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Col, Form, Row, Table } from "react-bootstrap";
+import Web3 from "web3";
+import { DebouncedInput } from "../shared/DebouncedInput";
+import Contract from "../../contracts/VaultInfo";
 
 type CollateralType = "ETH" | "WBTC" | "USDC";
 interface InputsState {
   type: CollateralType;
-  cdpId: string;
+  cdpId: string | null;
 }
 const collateralTypes: CollateralType[] = ["ETH", "WBTC", "USDC"];
 
@@ -15,17 +18,28 @@ const CdpList = () => {
     cdpId: "",
   });
 
+  const getCdps = async () => {
+    try {
+      const web3 = new Web3();
+      const { abi, addres } = Contract;
+      // const contract = new web3.eth.Contract(abi, addres);
+      // console.log("Contract", contract);
+    } catch (err) {}
+  };
+
   const updateCollateralType = (ev: React.ChangeEvent<HTMLSelectElement>) =>
     setInputs((p) => ({
       ...p,
       type: ev.target.value as CollateralType,
     }));
 
-  const updateCdpId = (ev: React.ChangeEvent<HTMLInputElement>) =>
+  const updateCdpId = (id: string | null) => {
     setInputs((p) => ({
       ...p,
-      cdpId: ev.target.value as CollateralType,
+      cdpId: id,
     }));
+    getCdps();
+  };
 
   return (
     <div>
@@ -43,11 +57,9 @@ const CdpList = () => {
         <Col lg="4">
           <Form.Group>
             <Form.Label>CDP Id</Form.Label>
-            <Form.Control
+            <DebouncedInput
               className="col-5"
-              type="text"
               placeholder="Enter CDP Id.."
-              value={inputs.cdpId}
               onChange={updateCdpId}
             />
           </Form.Group>
