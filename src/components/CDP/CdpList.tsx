@@ -3,7 +3,6 @@ import { Col, Form, Row, Table } from "react-bootstrap";
 import Web3 from "web3";
 import { DebouncedInput } from "../shared/DebouncedInput";
 import Contract from "../../contracts/VaultInfo/Contract";
-import { useAuthContext } from "../Provider/hooks";
 
 type CollateralType = "ETH" | "WBTC" | "USDC";
 interface InputsState {
@@ -57,18 +56,13 @@ const CdpList = () => {
     type: "ETH",
     cdpId: "",
   });
-  const {
-    wallet: { account },
-  } = useAuthContext();
 
   const getCdps = async (id: number, type: CollateralType) => {
     try {
       const web3 = new Web3(window.ethereum as any);
+      // await window.ethereum?.enable(); // Use on cdp page
       const { abi, addres } = Contract;
       const contract = new web3.eth.Contract(abi, addres);
-      // const res = await contract.methods.getCdpInfo(id).call({ from: account });
-      // console.log(res);
-      contract.options.from = account;
       const method = (id: number) => contract.methods.getCdpInfo(id).call();
       resolveCdpsInParallel(id, method);
     } catch (err) {}

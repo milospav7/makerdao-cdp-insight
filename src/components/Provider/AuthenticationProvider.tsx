@@ -52,9 +52,9 @@ const AuthenticationProvider = ({ children }: IAuthenticationProviderProps) => {
   useEffect(() => {
     if (window.ethereum !== undefined) {
       window.ethereum.on("accountsChanged", updateWallet);
-      window.ethereum
-        .request({ method: "eth_requestAccounts" })
-        .then((acc: any) => updateWallet(acc));
+      // window.ethereum
+      //   .request({ method: "eth_requestAccounts" })
+      //   .then((acc: any) => updateWallet(acc));
       setInitialWallet();
     } else {
       setContext({
