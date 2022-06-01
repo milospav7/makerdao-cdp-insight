@@ -30,6 +30,10 @@ export const DebouncedInput: React.FC<IDebouncedFieldProps> = ({
     }, DEBOUNCE_INTERVAL);
   };
 
+  const preventDelimiting = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "." || e.key === "e") e.preventDefault();
+  };
+
   // In case when reseting filters
   useEffect(() => {
     setDebouncedValue(initialValue ?? "");
@@ -38,11 +42,13 @@ export const DebouncedInput: React.FC<IDebouncedFieldProps> = ({
 
   return (
     <Form.Control
-      type="text"
+      type="number"
       placeholder={placeholder}
       value={debouncedValue}
       onChange={saveWithDebounce}
       className={className}
+      onKeyDown={preventDelimiting}
+      min="1"
     />
   );
 };
