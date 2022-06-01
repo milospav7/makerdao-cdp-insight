@@ -17,56 +17,86 @@ const isTargetType = (ilk: string, expectedType: string) => {
   return encoded === expectedType;
 };
 
-const isExistingCdp = (cdp: any) =>
-  cdp.owner !== "0x0000000000000000000000000000000000000000";
+const isNonexistingCdp = (cdp: any) =>
+  cdp.owner === "0x0000000000000000000000000000000000000000";
 
 const resolveCdpsInParallel = async (
   inputId: number,
   inputType: CollateralType,
   getter: (id: number) => any
 ) => {
+  const parallelismDegree = 5;
+  const expectedListSize = 20;
+
   let retreivedCdps: any[] = [];
   let topNotReached = true;
   let bottomNotReached = true;
   let currentTopId = inputId;
   let currentBottomId = inputId - 1;
-  const parallelismDegree = 5;
 
-  while (retreivedCdps.length < 20 && (topNotReached || bottomNotReached)) {
-    console.log(topNotReached, bottomNotReached);
-    const topIds = [...Array(parallelismDegree).keys()].map(
-      (x) => currentTopId + x
-    );
-    const bottomIds = [...Array(parallelismDegree).keys()].map(
-      (x) => currentBottomId - x
-    );
+  while (
+    retreivedCdps.length < expectedListSize &&
+    (topNotReached || bottomNotReached)
+  ) {
+    if (bottomNotReached) {
+      const chunkSizeShouldBeReduced = currentBottomId < parallelismDegree; // Check to prevent hitting through 0 id
+      const modifiedDegree = chunkSizeShouldBeReduced
+        ? currentBottomId
+        : parallelismDegree;
 
-    let topIdsResponse = await Promise.all(topIds.map((id) => getter(id)));
-    let bottomIdsResponse = await Promise.all(
-      bottomIds.map((id) => getter(id))
-    );
+      const bottomIds = [...Array(modifiedDegree).keys()].map(
+        // eslint-disable-next-line no-loop-func
+        (x) => currentBottomId - x
+      );
 
-    const filteredBottomResponse = bottomIdsResponse.filter(
-      (cdp) => isExistingCdp(cdp) && isTargetType(cdp.ilk, inputType)
-    );
-    const filteredTopResponse = topIdsResponse.filter(
-      (cdp) => isExistingCdp(cdp) && isTargetType(cdp.ilk, inputType)
-    );
+      let bottomIdsResponse = await Promise.all(
+        bottomIds.map((id) => getter(id))
+      );
 
-    if (filteredBottomResponse.length === 0) bottomNotReached = false;
-    else
-      filteredBottomResponse.forEach((cdp) => {
-        if (retreivedCdps.length < 20) retreivedCdps.push(cdp);
-      });
+      for (const cdp of bottomIdsResponse) {
+        const nonExistingCdp = isNonexistingCdp(cdp);
+        const lastBottomIdProcessed = cdp.id === 1;
 
-    if (filteredTopResponse.length === 0) topNotReached = false;
-    else
-      filteredTopResponse.forEach((cdp) => {
-        if (retreivedCdps.length < 20) retreivedCdps.push(cdp);
-      });
+        if (nonExistingCdp || lastBottomIdProcessed) {
+          bottomNotReached = false;
+        } else {
+          const typeMatch = isTargetType(cdp.ilk, inputType);
+          if (typeMatch && retreivedCdps.length < 20) {
+            retreivedCdps.push(cdp);
+            currentBottomId = cdp.id - 1;
+          }
+        }
+      }
+    }
+
+    if (topNotReached) {
+      const topIds = [...Array(parallelismDegree).keys()].map(
+        // eslint-disable-next-line no-loop-func
+        (x) => currentTopId + x
+      );
+
+      let topIdsResponse = await Promise.all(topIds.map((id) => getter(id)));
+
+      for (const cdp of topIdsResponse) {
+        const nonExistingCdp = isNonexistingCdp(cdp);
+
+        if (nonExistingCdp) {
+          topNotReached = false;
+        }
+        {
+          const typeMatch = isTargetType(cdp.ilk, inputType);
+          if (typeMatch && retreivedCdps.length < 20) {
+            retreivedCdps.push(cdp);
+            currentTopId = cdp.id + 1;
+          }
+        }
+      }
+    }
   }
 
   console.log("length", retreivedCdps);
+  console.log(currentBottomId, currentTopId);
+  return retreivedCdps;
 };
 
 const CdpList = () => {
@@ -82,7 +112,10 @@ const CdpList = () => {
       // await window.ethereum?.enable(); // Use on cdp page
       const { abi, addres } = Contract;
       const contract = new web3.eth.Contract(abi, addres);
-      const method = (id: number) => contract.methods.getCdpInfo(id).call();
+      const method = async (id: number) => {
+        const result = await contract.methods.getCdpInfo(id).call();
+        return { ...result, id };
+      };
       resolveCdpsInParallel(id, type, method);
     } catch (err) {
       console.log("errorr");
