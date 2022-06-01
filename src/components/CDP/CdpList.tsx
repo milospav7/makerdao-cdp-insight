@@ -8,25 +8,38 @@ const collateralTypes: CollateralType[] = ["ETH-A", "WBTC-A", "USDC-A"];
 
 const CdpList = () => {
   const { getCdps } = useCdpService({ onError: (err) => console.log(err) });
-  const [cdps, setCdps] = useState([]);
+  const [cdps, setCdps] = useState<any[]>([]);
 
   const [inputs, setInputs] = useState<InputsState>({
     type: "ETH-A",
     cdpId: "",
   });
 
-  const updateCollateralType = (ev: React.ChangeEvent<HTMLSelectElement>) =>
+  const updateCollateralType = async (
+    ev: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     setInputs((p) => ({
       ...p,
       type: ev.target.value as CollateralType,
     }));
+    if (inputs.cdpId) {
+      const result = await getCdps({
+        id: Number(inputs.cdpId),
+        type: ev.target.value as CollateralType,
+      });
+      setCdps(result);
+    }
+  };
 
-  const updateCdpId = (id: string | null) => {
+  const updateCdpId = async (id: string | null) => {
     setInputs((p) => ({
       ...p,
       cdpId: id,
     }));
-    if (id) getCdps({ id: Number(id), type: inputs.type });
+    if (id) {
+      const result = await getCdps({ id: Number(id), type: inputs.type });
+      setCdps(result);
+    }
   };
 
   return (
@@ -57,24 +70,22 @@ const CdpList = () => {
         <thead>
           <tr>
             <th>Id</th>
-            <th>Coll. Ration</th>
-            <th>Liq. Ration</th>
-            <th>Max Coll.</th>
+            <th>Coll. Type</th>
+            <th>Coll. Ratio</th>
+            <th>Debt</th>
+            <th>Address</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
+          {cdps.map((cdp) => (
+            <tr key={cdp.id}>
+              <td>{cdp.id}</td>
+              <td>{cdp.type}</td>
+              <td>{cdp.collateral}</td>
+              <td>{cdp.debt}</td>
+              <td>{cdp.userAddr}</td>
+            </tr>
+          ))}
         </tbody>
       </Table>
     </div>

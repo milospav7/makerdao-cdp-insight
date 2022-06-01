@@ -54,6 +54,7 @@ export const useCdpService = (options: TServiceOptions) => {
     async (queryParms: TQueryParams) => {
       try {
         const { id, type } = queryParms;
+        console.log(type);
         const parallelismDegree = 5;
         const expectedListSize = 20;
 
@@ -67,6 +68,7 @@ export const useCdpService = (options: TServiceOptions) => {
           retreivedCdps.length < expectedListSize &&
           (topNotReached || bottomNotReached)
         ) {
+          console.log(topNotReached, bottomNotReached);
           if (bottomNotReached) {
             const chunkSizeShouldBeReduced =
               currentBottomId < parallelismDegree; // Check to prevent hitting through 0 id
@@ -131,6 +133,7 @@ export const useCdpService = (options: TServiceOptions) => {
         return retreivedCdps;
       } catch (error) {
         options.onError(error);
+        return [];
       }
     },
     [getCdp, isNonexistingCdp, isTargetType, options]
