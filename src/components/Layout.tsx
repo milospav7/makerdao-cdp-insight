@@ -31,8 +31,8 @@ const Layout = ({ children }: IProps) => {
   return (
     <LayoutContext.Provider value={contextActions}>
       <div className="app-container">
-        <div className="text-center py-3 h3 mb-0 app-header">
-          MakerDAO CDP Insight
+        <div className="text-center py-3 h3 mb-0 app-header fw-bold">
+          MAKERDAO CDP INSIGHT
         </div>
         {context.displayProgressBar && (
           <div

@@ -49,6 +49,7 @@ export const DebouncedInput: React.FC<IDebouncedFieldProps> = ({
       className={className}
       onKeyDown={preventDelimiting}
       min="1"
+      autoFocus
     />
   );
 };

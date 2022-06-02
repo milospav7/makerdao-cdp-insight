@@ -96,7 +96,7 @@ const CdpList = () => {
             </Form.Select>
           </Form.Group>
         </Col>
-        <Col lg="4">
+        <Col lg="3">
           <Form.Group>
             <Form.Label>CDP Id</Form.Label>
             <DebouncedInput
