@@ -66,10 +66,10 @@ export const useCdpService = (options: TServiceOptions) => {
       queryParms: TQueryParams,
       onProgressUpdate?: (progress: number) => void
     ) => {
-      try {
-        const currentTimestamp = new Date().getTime();
-        timestampOfLastExec.current = currentTimestamp;
+      const currentTimestamp = new Date().getTime();
+      timestampOfLastExec.current = currentTimestamp;
 
+      try {
         const { id, type } = queryParms;
         const parallelismDegree = 5;
         const expectedListSize = 20;
@@ -163,7 +163,10 @@ export const useCdpService = (options: TServiceOptions) => {
         };
       } catch (error) {
         options.onError(error);
-        return { result: [], aborted: false };
+        return {
+          result: [],
+          aborted: !isThisMostRecentExecution(currentTimestamp),
+        };
       }
     },
     [getCdp, isNonexistingCdp, isTargetType, isThisMostRecentExecution, options]
