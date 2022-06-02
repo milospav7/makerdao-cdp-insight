@@ -1,5 +1,5 @@
 import { bytesToString } from "@defisaver/tokens/esm/utils";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import Web3 from "web3";
 import Contract from "../../contracts/VaultInfo/Contract";
 import { CollateralType, TQueryParams, TServiceOptions } from "./types";
@@ -10,8 +10,8 @@ export const useWeb3 = () => {
   const web3 = useMemo(() => new Web3(window.ethereum as any), []);
   return web3;
 };
-
 export const useCdpService = (options: TServiceOptions) => {
+  let timestampOfLastExec = useRef(0);
   const web3 = useWeb3();
 
   const enrichCdp = useCallback(
@@ -50,11 +50,19 @@ export const useCdpService = (options: TServiceOptions) => {
     [enrichCdp, options, web3.eth.Contract]
   );
 
+  const isThisMostRecentExecution = useCallback(
+    (executionTimestamp: number) =>
+      timestampOfLastExec.current === executionTimestamp,
+    []
+  );
+
   const getCdps = useCallback(
     async (queryParms: TQueryParams) => {
       try {
+        const currentTimestamp = new Date().getTime();
+        timestampOfLastExec.current = currentTimestamp;
+
         const { id, type } = queryParms;
-        console.log(type);
         const parallelismDegree = 5;
         const expectedListSize = 20;
 
@@ -66,9 +74,11 @@ export const useCdpService = (options: TServiceOptions) => {
 
         while (
           retreivedCdps.length < expectedListSize &&
-          (topNotReached || bottomNotReached)
+          (topNotReached || bottomNotReached) &&
+          isThisMostRecentExecution(currentTimestamp)
         ) {
-          console.log(topNotReached, bottomNotReached);
+          console.log(queryParms.id);
+          //   console.log(topNotReached, bottomNotReached);
           if (bottomNotReached) {
             const chunkSizeShouldBeReduced =
               currentBottomId < parallelismDegree; // Check to prevent hitting through 0 id
@@ -128,15 +138,15 @@ export const useCdpService = (options: TServiceOptions) => {
           }
         }
 
-        console.log("length", retreivedCdps);
-        console.log(currentBottomId, currentTopId);
+        // console.log("length", retreivedCdps);
+        // console.log(currentBottomId, currentTopId);
         return retreivedCdps;
       } catch (error) {
         options.onError(error);
         return [];
       }
     },
-    [getCdp, isNonexistingCdp, isTargetType, options]
+    [getCdp, isNonexistingCdp, isTargetType, isThisMostRecentExecution, options]
   );
 
   return { getCdp, getCdps };

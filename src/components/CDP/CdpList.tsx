@@ -5,9 +5,9 @@ import { useCdpService } from "./hooks";
 import { CollateralType, InputsState } from "./types";
 
 const collateralTypes: CollateralType[] = ["ETH-A", "WBTC-A", "USDC-A"];
-
+const opt = { onError: (err: any) => console.log(err) };
 const CdpList = () => {
-  const { getCdps } = useCdpService({ onError: (err) => console.log(err) });
+  const { getCdps } = useCdpService(opt);
   const [cdps, setCdps] = useState<any[]>([]);
 
   const [inputs, setInputs] = useState<InputsState>({
