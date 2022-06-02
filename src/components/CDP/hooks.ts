@@ -86,7 +86,6 @@ export const useCdpService = (options: TServiceOptions) => {
           isThisMostRecentExecution(currentTimestamp)
         ) {
           console.log(queryParms.id);
-          //   console.log(topNotReached, bottomNotReached);
           if (bottomNotReached) {
             const chunkSizeShouldBeReduced =
               currentBottomId < parallelismDegree; // Check to prevent hitting through 0 id
@@ -107,13 +106,16 @@ export const useCdpService = (options: TServiceOptions) => {
               const nonExistingCdp = isNonexistingCdp(cdp);
               const lastBottomIdProcessed = cdp.id === 1;
 
-              if (nonExistingCdp || lastBottomIdProcessed) {
+              if (nonExistingCdp) {
                 bottomNotReached = false;
               } else {
                 const typeMatch = isTargetType(cdp.ilk, type);
+                if (lastBottomIdProcessed) bottomNotReached = false;
+
                 if (typeMatch && retreivedCdps.length < 20) {
                   retreivedCdps.push(cdp);
                   currentBottomId = cdp.id - 1;
+
                   if (onProgressUpdate)
                     onProgressUpdate(
                       Math.ceil((retreivedCdps.length / 20) * 100)
@@ -138,12 +140,13 @@ export const useCdpService = (options: TServiceOptions) => {
 
               if (nonExistingCdp) {
                 topNotReached = false;
-              }
-              {
+              } else {
                 const typeMatch = isTargetType(cdp.ilk, type);
+
                 if (typeMatch && retreivedCdps.length < 20) {
                   retreivedCdps.push(cdp);
                   currentTopId = cdp.id + 1;
+
                   if (onProgressUpdate)
                     onProgressUpdate(
                       Math.ceil((retreivedCdps.length / 20) * 100)
@@ -154,8 +157,6 @@ export const useCdpService = (options: TServiceOptions) => {
           }
         }
 
-        // console.log("length", retreivedCdps);
-        // console.log(currentBottomId, currentTopId);
         return {
           result: retreivedCdps,
           aborted: !isThisMostRecentExecution(currentTimestamp),
