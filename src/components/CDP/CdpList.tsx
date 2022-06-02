@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
+import { useLayoutContext } from "../Provider/hooks";
 import { DebouncedInput } from "../shared/DebouncedInput";
 import Grid from "./Grid";
 import { useCdpService } from "./hooks";
@@ -16,6 +17,8 @@ const gridColumns: IGridColumn[] = [
 ];
 
 const CdpList = () => {
+  const { setLayoutProgressPercentage, setLayoutProgressVisiblity } =
+    useLayoutContext();
   const [cdps, setCdps] = useState<any[]>([]);
   const [inputs, setInputs] = useState<InputsState>({
     type: "ETH-A",
@@ -41,12 +44,22 @@ const CdpList = () => {
       type: ev.target.value as CollateralType,
     }));
     if (inputs.cdpId) {
-      const result = await getCdps({
-        id: Number(inputs.cdpId),
-        type: ev.target.value as CollateralType,
-      });
-      setCdps(result);
-    }
+      setLayoutProgressPercentage(0);
+      setLayoutProgressVisiblity(true);
+
+      const output = await getCdps(
+        {
+          id: Number(inputs.cdpId),
+          type: ev.target.value as CollateralType,
+        },
+        setLayoutProgressPercentage
+      );
+
+      if (!output.aborted) {
+        setCdps(output.result);
+        setLayoutProgressVisiblity(false);
+      }
+    } else setCdps([]);
   };
 
   const updateCdpId = async (id: string | null) => {
@@ -55,9 +68,19 @@ const CdpList = () => {
       cdpId: id,
     }));
     if (id) {
-      const result = await getCdps({ id: Number(id), type: inputs.type });
-      setCdps(result);
-    }
+      setLayoutProgressPercentage(0);
+      setLayoutProgressVisiblity(true);
+
+      const output = await getCdps(
+        { id: Number(id), type: inputs.type },
+        setLayoutProgressPercentage
+      );
+
+      if (!output.aborted) {
+        setCdps(output.result);
+        setLayoutProgressVisiblity(false);
+      }
+    } else setCdps([]);
   };
 
   return (

@@ -62,7 +62,10 @@ export const useCdpService = (options: TServiceOptions) => {
   );
 
   const getCdps = useCallback(
-    async (queryParms: TQueryParams) => {
+    async (
+      queryParms: TQueryParams,
+      onProgressUpdate?: (progress: number) => void
+    ) => {
       try {
         const currentTimestamp = new Date().getTime();
         timestampOfLastExec.current = currentTimestamp;
@@ -111,6 +114,10 @@ export const useCdpService = (options: TServiceOptions) => {
                 if (typeMatch && retreivedCdps.length < 20) {
                   retreivedCdps.push(cdp);
                   currentBottomId = cdp.id - 1;
+                  if (onProgressUpdate)
+                    onProgressUpdate(
+                      Math.ceil((retreivedCdps.length / 20) * 100)
+                    );
                 }
               }
             }
@@ -137,6 +144,10 @@ export const useCdpService = (options: TServiceOptions) => {
                 if (typeMatch && retreivedCdps.length < 20) {
                   retreivedCdps.push(cdp);
                   currentTopId = cdp.id + 1;
+                  if (onProgressUpdate)
+                    onProgressUpdate(
+                      Math.ceil((retreivedCdps.length / 20) * 100)
+                    );
                 }
               }
             }
@@ -145,10 +156,13 @@ export const useCdpService = (options: TServiceOptions) => {
 
         // console.log("length", retreivedCdps);
         // console.log(currentBottomId, currentTopId);
-        return retreivedCdps;
+        return {
+          result: retreivedCdps,
+          aborted: !isThisMostRecentExecution(currentTimestamp),
+        };
       } catch (error) {
         options.onError(error);
-        return [];
+        return { result: [], aborted: false };
       }
     },
     [getCdp, isNonexistingCdp, isTargetType, isThisMostRecentExecution, options]

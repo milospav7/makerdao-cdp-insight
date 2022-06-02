@@ -12,3 +12,8 @@ export interface IAuthenticationContext {
   wallet: IAuthenticationWallet;
   error: any;
 }
+
+export interface ILayoutContext {
+  setLayoutProgressPercentage: (progress: number) => void;
+  setLayoutProgressVisiblity: (visibility: boolean) => void;
+}
