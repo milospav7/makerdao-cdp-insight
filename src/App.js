@@ -8,6 +8,7 @@ import NotAllowedPage from "./components/NotAllowedPage";
 import AuthenticationProvider from "./components/Provider/AuthenticationProvider";
 import RequireWallet from "./components/RequireWallet";
 import ErrorPage from "./components/ErrorPage";
+import ToastContainer from "./components/shared/ToastContainer";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           </Routes>
         </Layout>
       </BrowserRouter>
+      <ToastContainer />
     </AuthenticationProvider>
   );
 }

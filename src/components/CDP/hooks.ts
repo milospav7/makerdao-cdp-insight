@@ -4,6 +4,8 @@ import Web3 from "web3";
 import Contract from "../../contracts/VaultInfo/Contract";
 import { CollateralType, TQueryParams, TServiceOptions } from "./types";
 
+const INVALID_STATE = "0x0000000000000000000000000000000000000000";
+
 // With custom http providers it would make much more sense to use it as a hook(some async operations would be triggered), but either way I will leave it as it is in order to keep that hook-based programing style
 // I will not make provider checking (if eth !== undefined) since it is responsibility of upper autentication level
 export const useWeb3 = () => {
@@ -32,7 +34,10 @@ export const useCdpService = (options: TServiceOptions) => {
   );
 
   const isNonexistingCdp = useCallback(
-    (cdp: any) => cdp.owner === "0x0000000000000000000000000000000000000000",
+    (cdp: any) =>
+      cdp.owner === INVALID_STATE &&
+      cdp.ilk === INVALID_STATE &&
+      cdp.userAddr === INVALID_STATE,
     []
   );
 

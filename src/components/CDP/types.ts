@@ -13,3 +13,13 @@ export type TQueryParams = {
   id: number;
   type: CollateralType;
 };
+
+export interface IGridColumn {
+  field: string;
+  title: string;
+}
+
+export interface IGridProps {
+  columns: IGridColumn[];
+  data: any[];
+}

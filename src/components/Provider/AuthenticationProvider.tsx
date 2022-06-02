@@ -32,7 +32,6 @@ const AuthenticationProvider = ({ children }: IAuthenticationProviderProps) => {
       },
       error: null,
     });
-    console.log(accounts);
   };
 
   const setInitialWallet = async () => {

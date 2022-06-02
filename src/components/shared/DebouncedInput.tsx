@@ -1,7 +1,7 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 
-const DEBOUNCE_INTERVAL = 400; // In ms
+const DEBOUNCE_INTERVAL = 500; // In ms
 
 interface IDebouncedFieldProps {
   initialValue?: string;

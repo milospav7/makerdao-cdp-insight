@@ -1,19 +1,37 @@
 import { useState } from "react";
-import { Col, Form, Row, Table } from "react-bootstrap";
+import { Col, Form, Row } from "react-bootstrap";
+import { toast } from "react-toastify";
 import { DebouncedInput } from "../shared/DebouncedInput";
+import Grid from "./Grid";
 import { useCdpService } from "./hooks";
-import { CollateralType, InputsState } from "./types";
+import { CollateralType, IGridColumn, InputsState } from "./types";
 
 const collateralTypes: CollateralType[] = ["ETH-A", "WBTC-A", "USDC-A"];
-const opt = { onError: (err: any) => console.log(err) };
-const CdpList = () => {
-  const { getCdps } = useCdpService(opt);
-  const [cdps, setCdps] = useState<any[]>([]);
+const gridColumns: IGridColumn[] = [
+  { title: "Id", field: "id" },
+  { title: "Coll. Type", field: "type" },
+  { title: "Coll. Ratio", field: "collateral" },
+  { title: "Debt", field: "debt" },
+  { title: "Address", field: "userAddr" },
+];
 
+const CdpList = () => {
+  const [cdps, setCdps] = useState<any[]>([]);
   const [inputs, setInputs] = useState<InputsState>({
     type: "ETH-A",
     cdpId: "",
   });
+
+  const errorHandler = (error: any) => {
+    // Some error handling...
+    console.error(error);
+    toast.error(
+      "There was an error while trying to retreive CDPs. Try again with different inputs.",
+      { autoClose: 7000 }
+    );
+  };
+
+  const { getCdps } = useCdpService({ onError: errorHandler });
 
   const updateCollateralType = async (
     ev: React.ChangeEvent<HTMLSelectElement>
@@ -66,28 +84,7 @@ const CdpList = () => {
           </Form.Group>
         </Col>
       </Row>
-      <Table bordered hover size="sm" className="text-light">
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Coll. Type</th>
-            <th>Coll. Ratio</th>
-            <th>Debt</th>
-            <th>Address</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cdps.map((cdp) => (
-            <tr key={cdp.id}>
-              <td>{cdp.id}</td>
-              <td>{cdp.type}</td>
-              <td>{cdp.collateral}</td>
-              <td>{cdp.debt}</td>
-              <td>{cdp.userAddr}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <Grid columns={gridColumns} data={cdps} />
     </div>
   );
 };
