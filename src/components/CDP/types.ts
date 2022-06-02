@@ -22,4 +22,5 @@ export interface IGridColumn {
 export interface IGridProps {
   columns: IGridColumn[];
   data: any[];
+  noDataMessage?: string
 }

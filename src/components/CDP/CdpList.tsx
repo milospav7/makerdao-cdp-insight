@@ -86,9 +86,9 @@ const CdpList = () => {
   return (
     <div>
       <Row className="mb-3">
-        <Col lg="2">
+        <Col lg="2" md="3">
           <Form.Group>
-            <Form.Label>Collateral type</Form.Label>
+            <Form.Label className="fw-bolder">COLLATERAL TYPE</Form.Label>
             <Form.Select value={inputs.type} onChange={updateCollateralType}>
               {collateralTypes.map((ct) => (
                 <option key={`${ct}-opt`}>{ct}</option>
@@ -96,9 +96,9 @@ const CdpList = () => {
             </Form.Select>
           </Form.Group>
         </Col>
-        <Col lg="3">
+        <Col lg="2" md="3">
           <Form.Group>
-            <Form.Label>CDP Id</Form.Label>
+            <Form.Label className="fw-bolder">CDP ID</Form.Label>
             <DebouncedInput
               className="col-5"
               placeholder="Enter CDP Id.."
@@ -107,7 +107,11 @@ const CdpList = () => {
           </Form.Group>
         </Col>
       </Row>
-      <Grid columns={gridColumns} data={cdps} />
+      <Grid
+        columns={gridColumns}
+        data={cdps}
+        noDataMessage="No records available. Use filters to search for CDPs.."
+      />
     </div>
   );
 };

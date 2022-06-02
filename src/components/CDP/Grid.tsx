@@ -1,11 +1,13 @@
 import { Table } from "react-bootstrap";
 import { IGridProps } from "./types";
 
-const Grid = ({ columns, data }: IGridProps) => {
-  if (data.length === 0) return <div />;
-
-  return (
-    <Table bordered hover size="sm" className="text-light">
+const Grid = ({
+  columns,
+  data,
+  noDataMessage = "No records available.",
+}: IGridProps) => (
+  <div>
+    <Table bordered size="sm" className="text-inherit mb-0">
       <thead>
         <tr>
           {columns.map((c) => (
@@ -23,7 +25,12 @@ const Grid = ({ columns, data }: IGridProps) => {
         ))}
       </tbody>
     </Table>
-  );
-};
+    {data.length === 0 && (
+      <div className="py-3 text-center border border-light">
+        <p className="py-5">{noDataMessage}</p>
+      </div>
+    )}
+  </div>
+);
 
 export default Grid;

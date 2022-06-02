@@ -62,3 +62,7 @@ a:active {
   height: 0.1em;
   box-shadow: 0 0 2px 1px #fff, 0 0 2px 1px #5bc0de, 0 0 2px 1px #5bc0de;
 }
+
+.text-inherit {
+  color: inherit;
+}
