@@ -166,3 +166,7 @@ thead th {
   transform: translate(-50%, 50%);
   z-index: 10000;
 }
+
+.cursor-pointer{
+  cursor: pointer;
+}

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import HeaderButton from "./Header/HeaderButton";
 import { LayoutContext } from "./Auth/hooks";
 import { ILayoutContext } from "./Auth/interfaces";
@@ -18,6 +18,7 @@ let timeout: undefined | NodeJS.Timeout;
 const Layout = ({ children }: IProps) => {
   const { pathname } = useLocation();
   const [context, setContext] = useState(initialState);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setContext(initialState);
@@ -46,15 +47,19 @@ const Layout = ({ children }: IProps) => {
     [setLayoutProgressPercentage, setLayoutProgressVisiblity]
   );
 
+  const goToHomepage = useCallback(() => {
+    navigate("/", { replace: true });
+  }, [navigate]);
+
   return (
     <LayoutContext.Provider value={contextActions}>
       <div className="app-container p-relative overflow-auto">
         <div className="py-3 mb-0 app-header fw-bold sticky-top">
           <div className="container d-flex flex-row align-item-center justify-content-between ">
-            <h3>
+            <h3 className="cursor-pointer" onClick={goToHomepage}>
               <img
                 className="header-logo me-2"
-                src={"assets/logo.png"}
+                src={"/assets/logo.png"}
                 alt="Logo.."
               />
               CDP Explorer

@@ -84,15 +84,9 @@ const CdpDetails = () => {
             <h5 className="fw-bold">
               <u>SIGNATURES</u>
             </h5>
-            <span className="mx-3">/</span>
-            <SignMessageButton
-              message="Jdada"
-              onMessageSigned={updateSignatures}
-              onSignError={toast.error}
-            />
           </div>
 
-          <div className="ps-2">
+          <div className="ps-2 mb-3">
             {signatures.length > 0 ? (
               signatures.map((s, i) => (
                 <p key={i}>
@@ -105,6 +99,11 @@ const CdpDetails = () => {
               </p>
             )}
           </div>
+          <SignMessageButton
+            message="Ovo je moj CDP"
+            onMessageSigned={updateSignatures}
+            onSignError={toast.error}
+          />
         </div>
       </div>
     </div>
