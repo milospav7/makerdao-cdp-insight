@@ -50,12 +50,13 @@ a:active {
 }
 
 .app-header {
-  background-color: #000;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 15px;
+  box-shadow: rgba(255, 255, 255, 0.15) 0px 0px 15px;
   position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 1071;
+  -webkit-text-stroke-width: .3px;
+  -webkit-text-stroke-color: #5bc0de;
 }
 
 .p-relative {
@@ -69,7 +70,7 @@ a:active {
 
 .layout-progress-bar {
   height: 0.1em;
-  box-shadow: 0 0 2px 2px #fff, 0 0 2px 2px #ddefef, 0 0 3px 2px #5bc0de;
+  box-shadow: 0 0 3px 5px #ffffff4d, 0 0 1px 2px #ffffff4d, 0 0 1px 2px #5bc0de;
   -webkit-transition: width 0.2s ease-in-out;
   -moz-transition: width 0.2s ease-in-out;
   -o-transition: width 0.2s ease-in-out;
