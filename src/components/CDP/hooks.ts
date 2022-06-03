@@ -12,6 +12,7 @@ export const useWeb3 = () => {
   const web3 = useMemo(() => new Web3(window.ethereum as any), []);
   return web3;
 };
+
 export const useCdpService = (options: TServiceOptions) => {
   let timestampOfLastExec = useRef(0);
   const web3 = useWeb3();

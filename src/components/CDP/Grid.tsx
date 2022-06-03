@@ -19,7 +19,7 @@ const Grid = ({
         size="md"
         className="table table-striped table-dark table-hover mb-0"
       >
-        <thead>
+        <thead className="border border-light">
           <tr>
             {columns.map((c) => (
               <th key={c.title}>{c.title.toUpperCase()}</th>
@@ -43,7 +43,7 @@ const Grid = ({
         </tbody>
       </Table>
       {data.length === 0 && (
-        <div className="py-3 text-center border border-light bg-dark-overlay">
+        <div className="py-3 text-center border border-top-0 border-light bg-dark-overlay">
           <p className="py-5">{noDataMessage}</p>
         </div>
       )}

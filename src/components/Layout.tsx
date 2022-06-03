@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+import HeaderButton from "./Header/HeaderButton";
 import { LayoutContext } from "./Provider/hooks";
 import { ILayoutContext } from "./Provider/interfaces";
 interface IProps {
@@ -51,9 +52,14 @@ const Layout = ({ children }: IProps) => {
         <div className="py-3 mb-0 app-header fw-bold sticky-top">
           <div className="container d-flex flex-row align-item-center justify-content-between ">
             <h3>
-              <img className="header-logo me-2" src={'assets/logo.png'} alt="Logo.." /> CDP Explorer
+              <img
+                className="header-logo me-2"
+                src={"assets/logo.png"}
+                alt="Logo.."
+              />
+              CDP Explorer
             </h3>
-            <button className="btn btn-primary btn-sm">CONNECT</button>
+            <HeaderButton />
           </div>
         </div>
         {context.displayProgressBar && (

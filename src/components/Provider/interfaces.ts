@@ -8,9 +8,15 @@ export interface IAuthenticationWallet {
   connected: boolean;
   account: any;
 }
+
+export interface IAuthenticationContextActions {
+  retryWalletAccess: () => Promise<void>;
+  requestWalletConnection: () => Promise<any>;
+}
 export interface IAuthenticationContext {
   wallet: IAuthenticationWallet;
-  error: any;
+  error: string;
+  actions: IAuthenticationContextActions;
 }
 
 export interface ILayoutContext {

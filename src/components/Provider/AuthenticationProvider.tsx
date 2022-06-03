@@ -14,24 +14,41 @@ const walletInitialState: IAuthenticationWallet = {
 };
 
 const AuthenticationProvider = ({ children }: IAuthenticationProviderProps) => {
-  const [context, setContext] = useState<IAuthenticationContext>({
-    wallet: walletInitialState,
-    error: null,
-  });
+  const [wallet, setWallet] =
+    useState<IAuthenticationWallet>(walletInitialState);
+  const [error, setError] = useState("");
 
   const updateWallet = (accounts: any) => {
     const connected = accounts.length > 0;
     const account = connected ? accounts[0] : null;
 
-    setContext({
-      wallet: {
-        accessing: false,
-        account,
-        connected,
-        installed: true,
-      },
-      error: null,
+    setWallet({
+      accessing: false,
+      account,
+      connected,
+      installed: true,
     });
+  };
+
+  const handleError = (friendlyError: string, actualError: any) => {
+    setError(friendlyError);
+    console.error(actualError);
+  };
+
+  const requestWalletConnection = async () => {
+    try {
+      const response = await window.ethereum!.request({
+        method: "eth_requestAccounts",
+      });
+      updateWallet(response);
+    } catch (err: any) {
+      const userJustRejectedConnection = err?.code === 4001;
+      if (userJustRejectedConnection) return; // We should not treat this as some app error, this is somehow potentially expected situation that user maybe does not want to connect to our website
+      handleError(
+        "There was an error while trying to connect with you wallet.",
+        err
+      );
+    }
   };
 
   const setInitialWallet = async () => {
@@ -41,32 +58,48 @@ const AuthenticationProvider = ({ children }: IAuthenticationProviderProps) => {
       });
       updateWallet(response);
     } catch (err) {
-      setContext({
-        wallet: walletInitialState,
-        error: err,
-      });
+      console.error("ERROR ON WALLET INITIALIZATION", err);
+      setWallet(walletInitialState);
+      handleError(
+        "There was an error while trying to acceess your wallet information.",
+        err
+      );
     }
   };
 
-  useEffect(() => {
-    if (window.ethereum !== undefined) {
+  const tryToAccessWallet = async () => {
+    await setInitialWallet();
+
+    if (window.ethereum) {
       window.ethereum.on("accountsChanged", updateWallet);
-      // window.ethereum
-      //   .request({ method: "eth_requestAccounts" })
-      //   .then((acc: any) => updateWallet(acc));
-      setInitialWallet();
+      await setInitialWallet();
     } else {
-      setContext({
-        wallet: { ...walletInitialState, accessing: false },
-        error: null,
-      });
+      setWallet({ ...walletInitialState, accessing: false });
     }
+  };
+
+  const retryWalletAccess = async () => {
+    setWallet(walletInitialState); // Reset whole state
+    await tryToAccessWallet();
+  };
+
+  useEffect(() => {
+    tryToAccessWallet();
 
     return () => {
       window.ethereum?.removeListener("accountsChanged", updateWallet);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const context: IAuthenticationContext = {
+    wallet,
+    error,
+    actions: {
+      requestWalletConnection,
+      retryWalletAccess,
+    },
+  };
 
   return (
     <AuthContext.Provider value={context}>{children}</AuthContext.Provider>
