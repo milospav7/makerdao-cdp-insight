@@ -48,13 +48,18 @@ const Layout = ({ children }: IProps) => {
   return (
     <LayoutContext.Provider value={contextActions}>
       <div className="app-container p-relative  overflow-auto">
-        <div className="text-center py-3 h3 mb-0 app-header fw-bold sticky-top">
-          MAKERDAO CDP INSIGHT
+        <div className="py-3 mb-0 app-header fw-bold sticky-top">
+          <div className="container d-flex flex-row align-item-center justify-content-between ">
+            <h3>
+              <img className="header-logo me-2" src={'assets/logo.png'} alt="Logo.." /> CDP Explorer
+            </h3>
+            <button className="btn btn-primary btn-sm">CONNECT</button>
+          </div>
         </div>
         {context.displayProgressBar && (
           <div className="layout-progress-bar-wrapper">
             <div
-              className="layout-progress-bar bg-info"
+              className="layout-progress-bar bg-primary"
               style={{ width: `${context.progressPercentage}%` }}
             >
               <div className="glow"> </div>

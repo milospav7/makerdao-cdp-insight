@@ -28,10 +28,12 @@ h3 {
   font-weight: 700;
   line-height: 1.1;
   margin-top: 0;
+  margin-bottom: 0;
 }
 
 p {
   margin-top: 0;
+  margin-bottom: 0;
 }
 
 a,
@@ -59,6 +61,11 @@ a:active {
   -webkit-text-stroke-color: #5bc0de;
 }
 
+.header-logo {
+  width: 30px;
+  height: 30px;
+}
+
 .p-relative {
   position: relative;
 }
@@ -70,7 +77,6 @@ a:active {
 
 .layout-progress-bar {
   height: 0.1em;
-  /* box-shadow: 0 0 3px 5px #ffffff4d, 0 0 1px 2px #ffffff4d, 0 0 1px 2px #5bc0de; */
   -webkit-transition: width 0.2s ease-in-out;
   -moz-transition: width 0.2s ease-in-out;
   -o-transition: width 0.2s ease-in-out;
@@ -146,4 +152,8 @@ thead th {
   top: -1em;
   left: -1em;
   z-index: -3;
+}
+
+.form-control:focus, .form-select:focus  {
+  box-shadow: 0 0 0 0.12rem #0d6efd;
 }
