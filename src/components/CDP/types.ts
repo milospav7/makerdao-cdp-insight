@@ -22,5 +22,6 @@ export interface IGridColumn {
 export interface IGridProps {
   columns: IGridColumn[];
   data: any[];
-  noDataMessage?: string
+  noDataMessage?: string;
+  onRowClick: (rowData: any) => void;
 }

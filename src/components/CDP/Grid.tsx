@@ -5,6 +5,7 @@ const Grid = ({
   columns,
   data,
   noDataMessage = "No records available.",
+  onRowClick,
 }: IGridProps) => (
   <div>
     <Table
@@ -21,7 +22,7 @@ const Grid = ({
       </thead>
       <tbody>
         {data.map((d, ind) => (
-          <tr key={`tr_${ind}`}>
+          <tr key={`tr_${ind}`} className="row-link">
             {columns.map((c, ind) => (
               <td width={1} key={`td_${ind}`}>
                 {d[c.field]}

@@ -113,6 +113,7 @@ const CdpList = () => {
         columns={gridColumns}
         data={cdps}
         noDataMessage="No records available. Use filters to search for CDPs.."
+        onRowClick={(item) => {}}
       />
     </div>
   );
