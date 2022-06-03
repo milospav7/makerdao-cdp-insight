@@ -7,11 +7,15 @@ const Grid = ({
   noDataMessage = "No records available.",
 }: IGridProps) => (
   <div>
-    <Table bordered size="sm" className="text-inherit mb-0">
+    <Table
+      bordered
+      size="md"
+      className="table table-striped table-dark table-hover mb-0"
+    >
       <thead>
         <tr>
           {columns.map((c) => (
-            <th key={c.title}>{c.title}</th>
+            <th key={c.title}>{c.title.toUpperCase()}</th>
           ))}
         </tr>
       </thead>
@@ -19,7 +23,9 @@ const Grid = ({
         {data.map((d, ind) => (
           <tr key={`tr_${ind}`}>
             {columns.map((c, ind) => (
-              <td key={`td_${ind}`}>{d[c.field]}</td>
+              <td width={1} key={`td_${ind}`}>
+                {d[c.field]}
+              </td>
             ))}
           </tr>
         ))}

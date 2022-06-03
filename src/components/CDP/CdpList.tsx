@@ -10,7 +10,7 @@ import { CollateralType, IGridColumn, InputsState } from "./types";
 const collateralTypes: CollateralType[] = ["ETH-A", "WBTC-A", "USDC-A"];
 const gridColumns: IGridColumn[] = [
   { title: "Id", field: "id" },
-  { title: "Coll. Type", field: "type" },
+  { title: "Type", field: "type" },
   { title: "Coll. Ratio", field: "collateral" },
   { title: "Debt", field: "debt" },
   { title: "Address", field: "userAddr" },
@@ -32,6 +32,8 @@ const CdpList = () => {
       "There was an error while trying to retreive CDPs. Try again with different inputs.",
       { autoClose: 7000 }
     );
+    setLayoutProgressPercentage(0);
+    setLayoutProgressVisiblity(false);
   };
 
   const { getCdps } = useCdpService({ onError: errorHandler });
