@@ -88,7 +88,7 @@ a:active {
 }
 
 .bg-dark-overlay {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.55);
 }
 
 .row-link {
@@ -96,7 +96,7 @@ a:active {
 }
 
 .row-link:hover td {
-  color: #5bc0de !important;
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 ::-webkit-scrollbar-track {
@@ -114,14 +114,6 @@ a:active {
   height: 8px;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.1);
-}
-
-thead th {
-  background-color: #ddefef !important;
-  color: #336b6b;
-  padding: 10px;
-  text-align: left;
-  text-shadow: 1px 1px 1px #fff;
 }
 
 .glow {
@@ -167,6 +159,19 @@ thead th {
   z-index: 10000;
 }
 
-.cursor-pointer{
+.cursor-pointer {
   cursor: pointer;
+}
+
+.empty-grid-body {
+  height: 600px;
+}
+
+.border-light-silver {
+  border-color: #bcbdbc;
+}
+
+.form-control, .form-select {
+  background-color: rgb(24, 26, 32)!important;
+  color: #bcbdbc!important;
 }

@@ -26,7 +26,10 @@ const CdpDetails = () => {
     const parsedId = Number(cdpId);
     const idIsInvalid = !Number.isInteger(parsedId) || parsedId <= 0;
 
-    if (idIsInvalid) navigate("/resource-not-found", { replace: true });
+    if (idIsInvalid) {
+      navigate("/resource-not-found", { replace: true });
+      return;
+    }
 
     async function loadCdp() {
       const cdp = await getCdp(parsedId);
