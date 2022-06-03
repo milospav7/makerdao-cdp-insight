@@ -16,6 +16,12 @@ export const useWeb3 = () => {
 export const useCdpService = (options: TServiceOptions) => {
   let timestampOfLastExec = useRef(0);
   const web3 = useWeb3();
+  const { abi, addres } = Contract;
+
+  const contract = useMemo(
+    () => new web3.eth.Contract(abi, addres),
+    [abi, addres, web3.eth.Contract]
+  );
 
   const isNonexistingCdp = useCallback(
     (cdp: any) =>
@@ -46,15 +52,13 @@ export const useCdpService = (options: TServiceOptions) => {
   const getCdp = useCallback(
     async (id: number) => {
       try {
-        const { abi, addres } = Contract;
-        const contract = new web3.eth.Contract(abi, addres);
         const result = await contract.methods.getCdpInfo(id).call();
         return enrichCdp(id, result);
       } catch (error) {
         options.onError(error);
       }
     },
-    [enrichCdp, options, web3.eth.Contract]
+    [contract.methods, enrichCdp, options]
   );
 
   const isThisMostRecentExecution = useCallback(

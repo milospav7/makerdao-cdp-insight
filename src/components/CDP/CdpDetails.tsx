@@ -24,9 +24,9 @@ const CdpDetails = () => {
 
   useEffect(() => {
     const parsedId = Number(cdpId);
-    const idIsValid = Number.isInteger(parsedId) && parsedId > 0;
+    const idIsInvalid = !Number.isInteger(parsedId) || parsedId <= 0;
 
-    if (!idIsValid) navigate("/resource-not-found", { replace: true });
+    if (idIsInvalid) navigate("/resource-not-found", { replace: true });
 
     async function loadCdp() {
       const cdp = await getCdp(parsedId);
@@ -85,7 +85,6 @@ const CdpDetails = () => {
               <u>SIGNATURES</u>
             </h5>
           </div>
-
           <div className="ps-2 mb-3">
             {signatures.length > 0 ? (
               signatures.map((s, i) => (
