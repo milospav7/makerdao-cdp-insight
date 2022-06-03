@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Col, Form, Row } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLayoutContext } from "../Provider/hooks";
 import { DebouncedInput } from "../shared/DebouncedInput";
@@ -19,6 +20,8 @@ const gridColumns: IGridColumn[] = [
 const CdpList = () => {
   const { setLayoutProgressPercentage, setLayoutProgressVisiblity } =
     useLayoutContext();
+  const navigate = useNavigate();
+
   const [cdps, setCdps] = useState<any[]>([]);
   const [inputs, setInputs] = useState<InputsState>({
     type: "ETH-A",
@@ -85,6 +88,8 @@ const CdpList = () => {
     } else setCdps([]);
   };
 
+  const goToCdpPage = (cdp: any) => navigate(`/cdp/${cdp.id}`);
+
   return (
     <div>
       <Row className="mb-3">
@@ -113,7 +118,7 @@ const CdpList = () => {
         columns={gridColumns}
         data={cdps}
         noDataMessage="No records available. Use filters to search for CDPs.."
-        onRowClick={(item) => {}}
+        onRowClick={goToCdpPage}
       />
     </div>
   );

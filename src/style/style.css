@@ -81,20 +81,15 @@ a:active {
 }
 
 .bg-dark-overlay {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .row-link {
   cursor: pointer;
 }
 
-.row-link:hover {
-  background-color: #fefefe !important;
-}
-
 .row-link:hover td {
-  background-color: #fefefe !important;
-  color: red !important;
+  color: #5bc0de !important;
 }
 
 ::-webkit-scrollbar-track {
