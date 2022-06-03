@@ -25,3 +25,7 @@ export interface IGridProps {
   noDataMessage?: string;
   onRowClick: (rowData: any) => void;
 }
+
+export interface ICdpDetailsProps {
+  cdpId: string
+}

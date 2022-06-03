@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "./Provider/hooks";
+import { useAuthContext } from "./Auth/hooks";
 
 interface IProps {
   children: any;

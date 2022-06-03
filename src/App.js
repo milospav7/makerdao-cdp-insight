@@ -3,9 +3,9 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CdpList from "./components/CDP/CdpList";
 import CdpDetails from "./components/CDP/CdpDetails";
 import Layout from "./components/Layout";
-import NotFoundPage from "./components/NotFoundPage";
+import PageNotFoundPage from "./components/PageNotFoundPage";
 import NotAllowedPage from "./components/NotAllowedPage";
-import AuthenticationProvider from "./components/Provider/AuthenticationProvider";
+import AuthenticationProvider from "./components/Auth/AuthenticationProvider";
 import RequireWallet from "./components/RequireWallet";
 import ErrorPage from "./components/ErrorPage";
 import ToastContainer from "./components/shared/ToastContainer";
@@ -32,10 +32,11 @@ function App() {
                 </RequireWallet>
               }
             />
-            <Route path="/404" element={<NotFoundPage />} />
+            <Route path="/404" element={<PageNotFoundPage />} />
+            <Route path="/resource-not-found" element={<PageNotFoundPage />} />
             <Route path="/wallet-missing" element={<NotAllowedPage />} />
             <Route path="/error" element={<ErrorPage />} />
-            <Route path="*" element={<NotFoundPage />} />
+            <Route path="*" element={<PageNotFoundPage />} />
           </Routes>
         </Layout>
       </BrowserRouter>

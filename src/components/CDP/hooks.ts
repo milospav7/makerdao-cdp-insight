@@ -17,13 +17,22 @@ export const useCdpService = (options: TServiceOptions) => {
   let timestampOfLastExec = useRef(0);
   const web3 = useWeb3();
 
+  const isNonexistingCdp = useCallback(
+    (cdp: any) =>
+      cdp.owner === INVALID_STATE &&
+      cdp.ilk === INVALID_STATE &&
+      cdp.userAddr === INVALID_STATE,
+    []
+  );
+
   const enrichCdp = useCallback(
     (id: number, cdp: any) => ({
       ...cdp,
       id,
       type: bytesToString(cdp.ilk),
+      nonexistingCdp: isNonexistingCdp(cdp),
     }),
-    []
+    [isNonexistingCdp]
   );
 
   const isTargetType = useCallback(
@@ -31,14 +40,6 @@ export const useCdpService = (options: TServiceOptions) => {
       const encoded = bytesToString(ilk);
       return encoded === expectedType;
     },
-    []
-  );
-
-  const isNonexistingCdp = useCallback(
-    (cdp: any) =>
-      cdp.owner === INVALID_STATE &&
-      cdp.ilk === INVALID_STATE &&
-      cdp.userAddr === INVALID_STATE,
     []
   );
 
@@ -104,10 +105,9 @@ export const useCdpService = (options: TServiceOptions) => {
             );
 
             for (const cdp of bottomIdsResponse) {
-              const nonExistingCdp = isNonexistingCdp(cdp);
               const lastBottomIdProcessed = cdp.id === 1;
 
-              if (nonExistingCdp) {
+              if (cdp.nonexistingCdp) {
                 bottomNotReached = false;
               } else {
                 const typeMatch = isTargetType(cdp.ilk, type);
@@ -137,9 +137,7 @@ export const useCdpService = (options: TServiceOptions) => {
             );
 
             for (const cdp of topIdsResponse) {
-              const nonExistingCdp = isNonexistingCdp(cdp);
-
-              if (nonExistingCdp) {
+              if (cdp.nonexistingCdp) {
                 topNotReached = false;
               } else {
                 const typeMatch = isTargetType(cdp.ilk, type);
@@ -170,7 +168,7 @@ export const useCdpService = (options: TServiceOptions) => {
         };
       }
     },
-    [getCdp, isNonexistingCdp, isTargetType, isThisMostRecentExecution, options]
+    [getCdp, isTargetType, isThisMostRecentExecution, options]
   );
 
   return { getCdp, getCdps };

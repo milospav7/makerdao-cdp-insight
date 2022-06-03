@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import HeaderButton from "./Header/HeaderButton";
-import { LayoutContext } from "./Provider/hooks";
-import { ILayoutContext } from "./Provider/interfaces";
+import { LayoutContext } from "./Auth/hooks";
+import { ILayoutContext } from "./Auth/interfaces";
 interface IProps {
   children: React.ReactNode;
 }
@@ -48,7 +48,7 @@ const Layout = ({ children }: IProps) => {
 
   return (
     <LayoutContext.Provider value={contextActions}>
-      <div className="app-container p-relative  overflow-auto">
+      <div className="app-container p-relative overflow-auto">
         <div className="py-3 mb-0 app-header fw-bold sticky-top">
           <div className="container d-flex flex-row align-item-center justify-content-between ">
             <h3>
@@ -72,7 +72,9 @@ const Layout = ({ children }: IProps) => {
             </div>
           </div>
         )}
-        <div className="container py-4">{children}</div>
+        <div className=" py-4 flex-fill overflow-auto">
+          <div className="container h-100">{children}</div>
+        </div>
       </div>
     </LayoutContext.Provider>
   );

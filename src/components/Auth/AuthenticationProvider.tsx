@@ -58,7 +58,6 @@ const AuthenticationProvider = ({ children }: IAuthenticationProviderProps) => {
       });
       updateWallet(response);
     } catch (err) {
-      console.error("ERROR ON WALLET INITIALIZATION", err);
       setWallet(walletInitialState);
       handleError(
         "There was an error while trying to acceess your wallet information.",
@@ -68,8 +67,6 @@ const AuthenticationProvider = ({ children }: IAuthenticationProviderProps) => {
   };
 
   const tryToAccessWallet = async () => {
-    await setInitialWallet();
-
     if (window.ethereum) {
       window.ethereum.on("accountsChanged", updateWallet);
       await setInitialWallet();
