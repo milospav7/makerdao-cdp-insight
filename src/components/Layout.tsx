@@ -56,7 +56,9 @@ const Layout = ({ children }: IProps) => {
             <div
               className="layout-progress-bar bg-info"
               style={{ width: `${context.progressPercentage}%` }}
-            ></div>
+            >
+              <div className="glow"> </div>
+            </div>
           </div>
         )}
         <div className="container py-4">{children}</div>

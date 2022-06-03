@@ -55,7 +55,7 @@ a:active {
   position: sticky;
   top: 0;
   z-index: 1071;
-  -webkit-text-stroke-width: .3px;
+  -webkit-text-stroke-width: 0.3px;
   -webkit-text-stroke-color: #5bc0de;
 }
 
@@ -70,7 +70,7 @@ a:active {
 
 .layout-progress-bar {
   height: 0.1em;
-  box-shadow: 0 0 3px 5px #ffffff4d, 0 0 1px 2px #ffffff4d, 0 0 1px 2px #5bc0de;
+  /* box-shadow: 0 0 3px 5px #ffffff4d, 0 0 1px 2px #ffffff4d, 0 0 1px 2px #5bc0de; */
   -webkit-transition: width 0.2s ease-in-out;
   -moz-transition: width 0.2s ease-in-out;
   -o-transition: width 0.2s ease-in-out;
@@ -116,4 +116,34 @@ thead th {
   padding: 10px;
   text-align: left;
   text-shadow: 1px 1px 1px #fff;
+}
+
+.glow {
+  width: 0.75em;
+  max-width: 100%;
+  height: 100%;
+  float: right;
+}
+
+.glow::before,
+.glow::after {
+  content: "";
+  display: block;
+  position: relative;
+  border-radius: 0px 2px 2px 0px;
+}
+
+.glow::before {
+  background: transparent;
+  height: 100%;
+  box-shadow: 0px 0px 1em #cfd6dd, 0px 0px 1em #04bfff;
+}
+
+.glow::after {
+  background: linear-gradient(to right, #3d5980 0%, transparent 100%);
+  height: calc(100% + 2em);
+  width: calc(100% + 1em);
+  top: -1em;
+  left: -1em;
+  z-index: -3;
 }
