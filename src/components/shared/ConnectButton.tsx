@@ -3,10 +3,11 @@ import { useAuthContext } from "../Auth/hooks";
 const ConnectButton = () => {
   const {
     wallet: { accessing, connected, installed },
+    error,
     actions: { requestWalletConnection },
   } = useAuthContext();
 
-  if (!installed || accessing) return null;
+  if (!installed || accessing || !!error) return null;
 
   if (!connected)
     return (

@@ -13,6 +13,7 @@ const SignMessageButton = ({
   const [signing, setSigning] = useState(false);
   const {
     wallet: { connected },
+    error,
   } = useAuthContext();
   const web3 = useWeb3();
   const {
@@ -41,7 +42,7 @@ const SignMessageButton = ({
     }
   };
 
-  if (!connected || !message) return null;
+  if (!connected || !message || !!error) return null;
 
   return (
     <button

@@ -77,6 +77,7 @@ const AuthenticationProvider = ({ children }: IAuthenticationProviderProps) => {
 
   const retryWalletAccess = async () => {
     setWallet(walletInitialState); // Reset whole state
+    setError("");
     await tryToAccessWallet();
   };
 

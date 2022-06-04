@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "./Auth/hooks";
+import PageLoader from "./shared/PageLoader";
 
 interface IProps {
   children: any;
@@ -18,7 +19,7 @@ const RequireWallet = ({ children }: IProps) => {
     else if (error) navigate("/error");
   }, [accessing, error, navigate, installed]);
 
-  if (accessing) return <div>Loading wallet</div>;
+  if (accessing) return <PageLoader />;
 
   return children;
 };
