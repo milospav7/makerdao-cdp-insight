@@ -14,15 +14,18 @@ const errorHandler = (error: any) => {
   );
 };
 
+const serviceOptions = { onError: errorHandler };
+
 const CdpDetails = () => {
   const { cdpId } = useParams();
   const [loading, setLoading] = useState(true);
   const [signatures, setSignatures] = useState<string[]>([]);
   const [cdp, setCdp] = useState<any>({});
-  const { getCdp } = useCdpService({ onError: errorHandler });
+  const { getCdp } = useCdpService(serviceOptions);
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
     const parsedId = Number(cdpId);
     const idIsInvalid = !Number.isInteger(parsedId) || parsedId <= 0;
 
@@ -36,10 +39,9 @@ const CdpDetails = () => {
 
       if (cdp.nonexistingCdp)
         navigate("/resource-not-found", { replace: true });
-      else {
-        setCdp(cdp);
-        setLoading(false);
-      }
+      else setCdp(cdp);
+
+      setLoading(false);
     }
 
     loadCdp();
@@ -49,44 +51,67 @@ const CdpDetails = () => {
   const updateSignatures = (signature: string) =>
     setSignatures((p) => [...p, signature]);
 
+  const getLiquidationRatio = () => {
+    if (cdp.type === "ETH-A" || cdp.type === "WBTC-A") return "145%";
+    if (cdp.type === "USDC-A") return "101%";
+    return "";
+  };
+
   if (loading) return <PageLoader />;
 
   return (
-    <div className="bg-dark-overlay p-3 h-100">
+    <div className="bg-dark-overlay px-3 h-100">
+      <div className="d-flex flex-row flex-wrap align-items-center justify-content-between">
+        <div className="bg-light-overlay rounded px-3 small py-1">
+          <p className="mb-0">
+            Collateralization Ratio: <b>180%</b>
+          </p>
+        </div>
+        <div className="bg-light-overlay rounded px-3 small py-1">
+          <p className="mb-0">
+            Liqudation Ratio: <b>{getLiquidationRatio()}</b>
+          </p>
+        </div>
+        <div className="bg-light-overlay rounded px-3 small py-1">
+          <p className="mb-0">
+            Max Collateral locked: <b>{cdp.collateral}</b>
+          </p>
+        </div>
+        <div className="bg-light-overlay rounded px-3 small py-1">
+          <p className="mb-0">
+            Max DAI Debt: <b>{cdp.collateral}</b>
+          </p>
+        </div>
+      </div>
+      <hr className="my-4" />
       <div>
-        <div className="">
-          <h5 className="mb-3 fw-bold">
-            <u>CDP INFORMATION</u>
-          </h5>
-          <div className="ps-2">
-            <p>
-              Id: <b>{cdp.id}</b>
-            </p>
-            <p>
-              Type: <b>{cdp.type}</b>
-            </p>
-            <p>
-              Coll. Ratio: <b>{cdp.collateral}</b>
-            </p>
-            <p>
-              Debt: <b>{cdp.debt}</b>
-            </p>
-            <p>
-              Address: <b>{cdp.userAddr}</b>
-            </p>
-            <p>
-              Owner: <b>{cdp.owner}</b>
-            </p>
-          </div>
+        <h5 className="mb-3 fw-bold text">CDP INFORMATION</h5>
+        <div className="ps-2">
+          <p>
+            Id: <b>{cdp.id}</b>
+          </p>
+          <p>
+            Type: <b>{cdp.type}</b>
+          </p>
+          <p>
+            Collateral: <b>{cdp.collateral}</b>
+          </p>
+          <p>
+            Debt: <b>{cdp.debt} DAI</b>
+          </p>
+          <p>
+            Address: <b>{cdp.userAddr}</b>
+          </p>
+          <p>
+            Owner: <b>{cdp.owner}</b>
+          </p>
         </div>
       </div>
       <hr className="my-4" />
       <div className="flex-fill ">
         <div>
           <div className="d-flex flex-row align-items-center mb-3">
-            <h5 className="fw-bold">
-              <u>SIGNATURES</u>
-            </h5>
+            <h5 className="fw-bold">SIGNATURES</h5>
           </div>
           <div className="ps-2 mb-3">
             {signatures.length > 0 ? (

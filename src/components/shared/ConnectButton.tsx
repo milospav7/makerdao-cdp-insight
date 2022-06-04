@@ -1,6 +1,6 @@
 import { useAuthContext } from "../Auth/hooks";
 
-const HeaderButton = () => {
+const ConnectButton = () => {
   const {
     wallet: { accessing, connected, installed },
     actions: { requestWalletConnection },
@@ -25,4 +25,4 @@ const HeaderButton = () => {
   );
 };
 
-export default HeaderButton;
+export default ConnectButton;

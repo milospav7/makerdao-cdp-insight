@@ -1,6 +1,6 @@
 import React from "react";
 import { Table } from "react-bootstrap";
-import { IGridProps } from "./types";
+import { IGridProps } from "../CDP/types";
 
 const Grid = ({
   columns,
@@ -29,8 +29,8 @@ const Grid = ({
         <tbody>
           {data.map((d, ind) => (
             <tr
-              onClick={clickHandler(d)}
               key={`tr_${ind}`}
+              onClick={clickHandler(d)}
               className="row-link"
             >
               {columns.map((c, ind) => (

@@ -2,7 +2,7 @@ import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CdpList from "./components/CDP/CdpList";
 import CdpDetails from "./components/CDP/CdpDetails";
-import Layout from "./components/Layout";
+import Layout from "./components/Layout/Layout";
 import PageNotFoundPage from "./components/PageNotFoundPage";
 import NotAllowedPage from "./components/NotAllowedPage";
 import AuthenticationProvider from "./components/Auth/AuthenticationProvider";

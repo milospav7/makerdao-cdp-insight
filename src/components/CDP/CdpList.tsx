@@ -4,16 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useLayoutContext } from "../Auth/hooks";
 import { DebouncedInput } from "../shared/DebouncedInput";
-import Grid from "./Grid";
+import Grid from "../shared/Grid";
 import { useCdpService } from "./hooks";
 import { CollateralType, IGridColumn, InputsState } from "./types";
 
 const collateralTypes: CollateralType[] = ["ETH-A", "WBTC-A", "USDC-A"];
-const gridColumns: IGridColumn[] = [
+const cdpColumns: IGridColumn[] = [
   { title: "Id", field: "id" },
   { title: "Type", field: "type" },
-  { title: "Coll. Ratio", field: "collateral" },
-  { title: "Debt", field: "debt" },
+  { title: "Collateral", field: "collateral" },
+  { title: "Debt [DAI]", field: "debt" },
   { title: "Address", field: "userAddr" },
 ];
 
@@ -115,7 +115,7 @@ const CdpList = () => {
         </Col>
       </Row>
       <Grid
-        columns={gridColumns}
+        columns={cdpColumns}
         data={cdps}
         noDataMessage="No records available. Use filters to search for CDPs.."
         onRowClick={goToCdpPage}

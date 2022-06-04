@@ -91,6 +91,10 @@ a:active {
   background-color: rgba(0, 0, 0, 0.55);
 }
 
+.bg-light-overlay {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
 .row-link {
   cursor: pointer;
 }
@@ -171,7 +175,20 @@ a:active {
   border-color: #bcbdbc;
 }
 
-.form-control, .form-select {
-  background-color: rgb(24, 26, 32)!important;
-  color: #bcbdbc!important;
+.form-control,
+.form-select {
+  background-color: rgb(24, 26, 32) !important;
+  color: #bcbdbc !important;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
 }

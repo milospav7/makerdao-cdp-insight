@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import HeaderButton from "./Header/HeaderButton";
-import { LayoutContext } from "./Auth/hooks";
-import { ILayoutContext } from "./Auth/interfaces";
+import ConnectButton from "../shared/ConnectButton";
+import { LayoutContext } from "../Auth/hooks";
+import { ILayoutContext } from "../Auth/interfaces";
+import HeaderProgressBar from "./HeaderProgressBar";
 interface IProps {
   children: React.ReactNode;
 }
@@ -64,18 +65,11 @@ const Layout = ({ children }: IProps) => {
               />
               CDP Explorer
             </h3>
-            <HeaderButton />
+            <ConnectButton />
           </div>
         </div>
         {context.displayProgressBar && (
-          <div className="layout-progress-bar-wrapper">
-            <div
-              className="layout-progress-bar bg-primary"
-              style={{ width: `${context.progressPercentage}%` }}
-            >
-              <div className="glow"> </div>
-            </div>
-          </div>
+          <HeaderProgressBar progress={context.progressPercentage} />
         )}
         <div className=" py-4 flex-fill overflow-auto">
           <div className="container h-100">{children}</div>

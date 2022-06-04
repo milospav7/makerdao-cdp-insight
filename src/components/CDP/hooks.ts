@@ -159,7 +159,7 @@ export const useCdpService = (options: TServiceOptions) => {
             }
           }
         }
-
+        console.log(retreivedCdps);
         return {
           result: retreivedCdps,
           aborted: !isThisMostRecentExecution(currentTimestamp),
