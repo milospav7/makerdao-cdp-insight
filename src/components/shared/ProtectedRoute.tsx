@@ -4,7 +4,7 @@ import {
   PathRouteProps,
   Route,
 } from "react-router-dom";
-import RequireWallet from "./RequireWallet";
+import RequireWallet from "../RequireWallet";
 
 const ProtectedRoute = ({
   element,

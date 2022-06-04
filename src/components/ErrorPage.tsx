@@ -1,4 +1,4 @@
-import ReloadAppButton from "./ReloadAppButton";
+import ReloadAppButton from "./shared/ReloadAppButton";
 
 const ErrorPage = () => (
   <div className="absolute-centered bg-dark-overlay p-5">

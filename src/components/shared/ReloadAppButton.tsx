@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "./Auth/hooks";
+import { useAuthContext } from "../Auth/hooks";
 
 interface IProps {
   className?: string;
