@@ -5,6 +5,10 @@ export const AuthContext = createContext<IAuthenticationContext | undefined>(
   undefined
 );
 
+export const LayoutContext = createContext<ILayoutContext | undefined>(
+  undefined
+);
+
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
 
@@ -15,10 +19,6 @@ export const useAuthContext = () => {
 
   return context;
 };
-
-export const LayoutContext = createContext<ILayoutContext | undefined>(
-  undefined
-);
 
 export const useLayoutContext = () => {
   const context = useContext(LayoutContext);
