@@ -1,5 +1,5 @@
-import { useAuthContext } from "./Auth/hooks";
-import ReloadAppButton from "./shared/ReloadAppButton";
+import { useAuthContext } from "../Auth/hooks";
+import ReloadAppButton from "../shared/ReloadAppButton";
 
 const ErrorPage = () => {
   const { error } = useAuthContext();

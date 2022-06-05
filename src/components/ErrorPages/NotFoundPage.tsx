@@ -1,4 +1,4 @@
-import GoHomeButton from "./shared/GoHomeButton";
+import GoHomeButton from "../shared/GoHomeButton";
 
 const NotFoundPage = () => {
   return (

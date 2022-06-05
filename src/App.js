@@ -3,13 +3,13 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CdpList from "./components/CDP/CdpList";
 import CdpDetails from "./components/CDP/CdpDetails";
 import Layout from "./components/Layout/Layout";
-import NotFoundPage from "./components/NotFoundPage";
-import NotAllowedPage from "./components/NotAllowedPage";
+import NotFoundPage from "./components/ErrorPages/NotFoundPage";
+import NotAllowedPage from "./components/ErrorPages/NotAllowedPage";
 import AuthenticationProvider from "./components/Auth/AuthenticationProvider";
-import RequireWallet from "./components/RequireWallet";
-import ErrorPage from "./components/ErrorPage";
+import RequireWallet from "./components/shared/RequireWallet";
+import ErrorPage from "./components/ErrorPages/ErrorPage";
 import ToastContainer from "./components/shared/ToastContainer";
-import ResourceNotFoundPage from "./components/ResourceNotFoundPage";
+import ResourceNotFoundPage from "./components/ErrorPages/ResourceNotFoundPage";
 
 function App() {
   return (

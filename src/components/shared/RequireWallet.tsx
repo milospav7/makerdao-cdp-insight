@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "./Auth/hooks";
-import PageLoader from "./shared/PageLoader";
+import { useAuthContext } from "../Auth/hooks";
+import PageLoader from "./PageLoader";
 
 interface IProps {
   children: any;
