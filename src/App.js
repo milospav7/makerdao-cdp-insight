@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CdpList from "./components/CDP/CdpList";
 import CdpDetails from "./components/CDP/CdpDetails";
 import Layout from "./components/Layout/Layout";
-import PageNotFoundPage from "./components/PageNotFoundPage";
+import NotFoundPage from "./components/NotFoundPage";
 import NotAllowedPage from "./components/NotAllowedPage";
 import AuthenticationProvider from "./components/Auth/AuthenticationProvider";
 import RequireWallet from "./components/RequireWallet";
@@ -33,14 +33,14 @@ function App() {
                 </RequireWallet>
               }
             />
-            <Route path="/404" element={<PageNotFoundPage />} />
+            <Route path="/404" element={<NotFoundPage />} />
             <Route
               path="/resource-not-found"
               element={<ResourceNotFoundPage />}
             />
             <Route path="/wallet-missing" element={<NotAllowedPage />} />
             <Route path="/error" element={<ErrorPage />} />
-            <Route path="*" element={<PageNotFoundPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Layout>
       </BrowserRouter>

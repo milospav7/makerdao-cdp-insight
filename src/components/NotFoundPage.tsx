@@ -1,6 +1,6 @@
 import GoHomeButton from "./shared/GoHomeButton";
 
-const PageNotFoundPage = () => {
+const NotFoundPage = () => {
   return (
     <div className="absolute-centered bg-dark-overlay p-5">
       <h5>Oopps, page you were looking for does not exist!</h5>
@@ -10,4 +10,4 @@ const PageNotFoundPage = () => {
   );
 };
 
-export default PageNotFoundPage;
+export default NotFoundPage;

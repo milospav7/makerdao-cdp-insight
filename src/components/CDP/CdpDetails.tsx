@@ -11,7 +11,7 @@ const errorHandler = (error: any) => {
   console.error(error);
   toast.error(
     "There was an error while trying to load CDP data. Reload page in order to try again.",
-    { autoClose: 7000 }
+    { autoClose: 8000 }
   );
 };
 
