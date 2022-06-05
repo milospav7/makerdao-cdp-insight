@@ -126,25 +126,24 @@ export const useCdpService = () => {
             );
 
             for (const cdp of bottomIdsResponse) {
-              const lastBottomIdProcessed = cdp.id === 1;
-
               if (cdp.nonexistingCdp) {
                 bottomNotReached = false;
               } else {
+                const lastBottomIdProcessed = cdp.id === 1;
                 const typeMatch = isTargetType(cdp.ilk, type);
+
                 if (lastBottomIdProcessed) bottomNotReached = false;
 
                 if (typeMatch && retreivedCdps.length < expectedListSize) {
                   retreivedCdps.push(cdp);
-
-                  if (onProgressUpdate)
-                    onProgressUpdate(
-                      Math.ceil((retreivedCdps.length / expectedListSize) * 100)
-                    );
                 }
               }
             }
             currentBottomId = currentBottomId - modifiedDegree;
+            if (onProgressUpdate && retreivedCdps.length)
+              onProgressUpdate(
+                Math.ceil((retreivedCdps.length / expectedListSize) * 100)
+              );
           }
 
           if (topNotReached) {
@@ -165,15 +164,14 @@ export const useCdpService = () => {
 
                 if (typeMatch && retreivedCdps.length < expectedListSize) {
                   retreivedCdps.push(cdp);
-
-                  if (onProgressUpdate)
-                    onProgressUpdate(
-                      Math.ceil((retreivedCdps.length / expectedListSize) * 100)
-                    );
                 }
               }
             }
             currentTopId = currentTopId + parallelismDegree;
+            if (onProgressUpdate && retreivedCdps.length)
+              onProgressUpdate(
+                Math.ceil((retreivedCdps.length / expectedListSize) * 100)
+              );
           }
 
           const offsetReached =

@@ -30,24 +30,42 @@ const CdpList = () => {
   const { setLayoutProgressPercentage, setLayoutProgressVisiblity } =
     useLayoutContext();
   const navigate = useNavigate();
+  const { getCdps } = useCdpService();
 
   const [cdps, setCdps] = useState<any[]>([]);
   const [inputs, setInputs] = useState<InputsState>({
     type: "ETH-A",
     cdpId: "",
   });
+  const [validation, setValidation] = useState({
+    idIsInvalid: false,
+    typeIsInvalid: false,
+    message: "",
+  });
 
-  const { getCdps } = useCdpService();
+  const validateInputId = (id: string) => {
+    const parsedId = Number(id);
+    const idIsInvalid = !Number.isInteger(parsedId) || parsedId <= 0;
+    setValidation((p) => ({
+      ...p,
+      typeIsInvalid: idIsInvalid ? false : p.typeIsInvalid,
+      idIsInvalid,
+      message: idIsInvalid ? "Id must be a valid positive number." : "",
+    }));
+    return !idIsInvalid;
+  };
 
   const handleServiceResponse = (response: CdpServiceResponse<any[]>) => {
     if (response.isSuccess) {
       setCdps(response.data);
       setLayoutProgressVisiblity(false);
     } else if (response.code === StatusCodes.AbortedDueMaxOffset) {
-      toast.error(
-        "We are not able to quickly resolve list of CDPs because there are no ones which are close enough to provided id. Please try with different id or type, since search could take a while and pontentially could be timed-out.",
-        { autoClose: 120000 }
-      );
+      setValidation({
+        idIsInvalid: true,
+        typeIsInvalid: true,
+        message:
+          "There are no positions which are close enough to provided id. Please try with different id or type, since search could take a while and pontentially could be timed-out.",
+      });
       setCdps([]);
       setLayoutProgressVisiblity(false);
     } else if (response.code === StatusCodes.Exception) {
@@ -56,7 +74,13 @@ const CdpList = () => {
     }
   };
 
-  const displaySearchProgress = () => {
+  const prepareSearch = () => {
+    // Do some initial sets and resets
+    setValidation({
+      idIsInvalid: false,
+      typeIsInvalid: false,
+      message: "",
+    });
     setLayoutProgressPercentage(2); // Set initial 2 percentage so user can clearly see that loading started
     setLayoutProgressVisiblity(true);
   };
@@ -68,43 +92,52 @@ const CdpList = () => {
       ...p,
       type: ev.target.value as CollateralType,
     }));
+
     if (inputs.cdpId) {
-      displaySearchProgress();
-
-      const response = await getCdps(
-        {
-          id: Number(inputs.cdpId),
-          type: ev.target.value as CollateralType,
-        },
-        setLayoutProgressPercentage
-      );
-
-      handleServiceResponse(response);
+      // Validate only if there is something entered in input
+      const idIsValid = validateInputId(inputs.cdpId);
+      if (idIsValid) {
+        prepareSearch();
+        const response = await getCdps(
+          {
+            id: Number(inputs.cdpId),
+            type: ev.target.value as CollateralType,
+          },
+          setLayoutProgressPercentage
+        );
+        handleServiceResponse(response);
+      }
     }
   };
 
-  const updateCdpId = async (id: string | null) => {
+  const updateCdpId = async (id: string) => {
     setInputs((p) => ({
       ...p,
       cdpId: id,
     }));
+
     if (id) {
-      displaySearchProgress();
-
-      const response = await getCdps(
-        { id: Number(id), type: inputs.type },
-        setLayoutProgressPercentage
-      );
-
-      handleServiceResponse(response);
+      const isValid = validateInputId(id);
+      if (isValid) {
+        prepareSearch();
+        const response = await getCdps(
+          { id: Number(id), type: inputs.type },
+          setLayoutProgressPercentage
+        );
+        handleServiceResponse(response);
+      }
     } else {
+      setValidation({
+        idIsInvalid: false,
+        typeIsInvalid: false,
+        message: "",
+      });
       setLayoutProgressVisiblity(false);
       setCdps([]);
     }
   };
 
-  const goToCdpPage = (cdp: any) =>
-    navigate(`/cdp/${cdp.id}`, { replace: true });
+  const goToCdpPage = (cdp: any) => navigate(`/cdp/${cdp.id}`);
 
   return (
     <div>
@@ -112,7 +145,11 @@ const CdpList = () => {
         <Col lg="2" md="3">
           <Form.Group>
             <Form.Label className="fw-bolder">COLLATERAL TYPE</Form.Label>
-            <Form.Select value={inputs.type} onChange={updateCollateralType}>
+            <Form.Select
+              value={inputs.type}
+              onChange={updateCollateralType}
+              isInvalid={validation.typeIsInvalid}
+            >
               {collateralTypes.map((ct) => (
                 <option key={`${ct}-opt`}>{ct}</option>
               ))}
@@ -121,14 +158,22 @@ const CdpList = () => {
         </Col>
         <Col lg="2" md="3">
           <Form.Group>
-            <Form.Label className="fw-bolder">CDP ID</Form.Label>
+            <Form.Label className="fw-bolder">ROUGH CDP ID</Form.Label>
             <DebouncedInput
               className="col-5"
               placeholder="Enter CDP Id.."
               onChange={updateCdpId}
+              isInvalid={validation.idIsInvalid}
             />
           </Form.Group>
         </Col>
+        {validation.message && (
+          <Col lg="8" md="6" className="align-self-end">
+            <p className="mb-0 text-danger fw-bold text-break small">
+              {validation.message}
+            </p>
+          </Col>
+        )}
       </Row>
       <Grid
         columns={cdpColumns}

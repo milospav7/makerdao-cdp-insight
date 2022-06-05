@@ -5,9 +5,10 @@ const DEBOUNCE_INTERVAL = 500; // In ms
 
 interface IDebouncedFieldProps {
   initialValue?: string;
-  onChange: (value: string | null) => void;
+  onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  isInvalid?: boolean;
 }
 
 let timeout: NodeJS.Timeout | null = null;
@@ -17,11 +18,13 @@ export const DebouncedInput: React.FC<IDebouncedFieldProps> = ({
   initialValue,
   placeholder,
   className,
+  isInvalid,
 }) => {
   const [debouncedValue, setDebouncedValue] = useState(initialValue ?? "");
 
   const saveWithDebounce = (ev: ChangeEvent<HTMLInputElement>) => {
     const inputValue = ev.target.value ?? "";
+
     setDebouncedValue(inputValue);
     if (timeout) clearTimeout(timeout);
 
@@ -30,8 +33,8 @@ export const DebouncedInput: React.FC<IDebouncedFieldProps> = ({
     }, DEBOUNCE_INTERVAL);
   };
 
-  const preventDelimiting = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "." || e.key === "e") e.preventDefault();
+  const preventSomeCharachters = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if ([".", "e", "-"].includes(e.key)) e.preventDefault();
   };
 
   // In case when reseting filters
@@ -47,9 +50,9 @@ export const DebouncedInput: React.FC<IDebouncedFieldProps> = ({
       value={debouncedValue}
       onChange={saveWithDebounce}
       className={className}
-      onKeyDown={preventDelimiting}
-      min="1"
+      onKeyDown={preventSomeCharachters}
       autoFocus
+      isInvalid={isInvalid}
     />
   );
 };

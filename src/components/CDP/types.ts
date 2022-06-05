@@ -2,7 +2,7 @@ export type CollateralType = "ETH-A" | "WBTC-A" | "USDC-A";
 
 export interface InputsState {
   type: CollateralType;
-  cdpId: string | null;
+  cdpId: string;
 }
 
 export type TServiceOptions = {
@@ -27,5 +27,5 @@ export interface IGridProps {
 }
 
 export interface ICdpDetailsProps {
-  cdpId: string
+  cdpId: string;
 }
