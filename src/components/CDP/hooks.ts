@@ -2,7 +2,7 @@ import { bytesToString } from "@defisaver/tokens/esm/utils";
 import { useCallback, useMemo, useRef } from "react";
 import Web3 from "web3";
 import Contract from "../../contracts/VaultInfo/Contract";
-import { RpcResponse, StatusCodes } from "../utils";
+import { CdpServiceResponse, StatusCodes } from "../utils";
 import { CollateralType, TQueryParams } from "./types";
 
 const INVALID_STATE = "0x0000000000000000000000000000000000000000";
@@ -55,9 +55,14 @@ export const useCdpService = () => {
       try {
         const result = await contract.methods.getCdpInfo(id).call();
         const cdp = enrichCdp(id, result);
-        return new RpcResponse<any>(true, StatusCodes.OK, cdp);
+        return new CdpServiceResponse<any>(true, StatusCodes.OK, cdp);
       } catch (error) {
-        return new RpcResponse<any>(false, StatusCodes.Exception, null, error);
+        return new CdpServiceResponse<any>(
+          false,
+          StatusCodes.Exception,
+          null,
+          error
+        );
       }
     },
     [contract.methods, enrichCdp]
@@ -88,17 +93,20 @@ export const useCdpService = () => {
       try {
         const { id, type } = queryParms;
         const parallelismDegree = 5;
+        const maxOffset = parallelismDegree * 30;
         const expectedListSize = 20;
 
         let retreivedCdps: any[] = [];
         let topNotReached = true;
         let bottomNotReached = true;
+        let maxOffsetNotReached = true;
         let currentTopId = id;
         let currentBottomId = id - 1;
 
         while (
           retreivedCdps.length < expectedListSize &&
           (topNotReached || bottomNotReached) &&
+          maxOffsetNotReached &&
           isThisMostRecentExecution(currentTimestamp)
         ) {
           if (bottomNotReached) {
@@ -126,12 +134,12 @@ export const useCdpService = () => {
                 const typeMatch = isTargetType(cdp.ilk, type);
                 if (lastBottomIdProcessed) bottomNotReached = false;
 
-                if (typeMatch && retreivedCdps.length < 20) {
+                if (typeMatch && retreivedCdps.length < expectedListSize) {
                   retreivedCdps.push(cdp);
 
                   if (onProgressUpdate)
                     onProgressUpdate(
-                      Math.ceil((retreivedCdps.length / 20) * 100)
+                      Math.ceil((retreivedCdps.length / expectedListSize) * 100)
                     );
                 }
               }
@@ -155,28 +163,46 @@ export const useCdpService = () => {
               } else {
                 const typeMatch = isTargetType(cdp.ilk, type);
 
-                if (typeMatch && retreivedCdps.length < 20) {
+                if (typeMatch && retreivedCdps.length < expectedListSize) {
                   retreivedCdps.push(cdp);
 
                   if (onProgressUpdate)
                     onProgressUpdate(
-                      Math.ceil((retreivedCdps.length / 20) * 100)
+                      Math.ceil((retreivedCdps.length / expectedListSize) * 100)
                     );
                 }
               }
             }
             currentTopId = currentTopId + parallelismDegree;
           }
+
+          const offsetReached =
+            currentBottomId - id > maxOffset || currentTopId - id > maxOffset;
+
+          if (offsetReached && retreivedCdps.length < 0.5 * expectedListSize)
+            maxOffsetNotReached = false;
         }
 
-        if (isThisMostRecentExecution(currentTimestamp))
-          return new RpcResponse<any[]>(true, StatusCodes.OK, retreivedCdps);
-        else return new RpcResponse<any[]>(false, StatusCodes.Aborted, []);
+        if (isThisMostRecentExecution(currentTimestamp)) {
+          if (maxOffsetNotReached)
+            return new CdpServiceResponse<any[]>(
+              true,
+              StatusCodes.OK,
+              retreivedCdps
+            );
+          else
+            return new CdpServiceResponse<any[]>(
+              false,
+              StatusCodes.AbortedDueMaxOffset,
+              retreivedCdps
+            );
+        } else
+          return new CdpServiceResponse<any[]>(false, StatusCodes.Aborted, []);
       } catch (error) {
         const code = isThisMostRecentExecution(currentTimestamp)
           ? StatusCodes.Exception
           : StatusCodes.Aborted;
-        return new RpcResponse<any[]>(false, code, [], error);
+        return new CdpServiceResponse<any[]>(false, code, [], error);
       }
     },
     [isTargetType, isThisMostRecentExecution, unprotectedGetCdp]

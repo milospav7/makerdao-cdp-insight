@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { useLayoutContext } from "../Auth/hooks";
 import { DebouncedInput } from "../shared/DebouncedInput";
 import Grid from "../shared/Grid";
-import { StatusCodes } from "../utils";
+import { CdpServiceResponse, StatusCodes } from "../utils";
 import { useCdpService } from "./hooks";
 import { CollateralType, IGridColumn, InputsState } from "./types";
 
@@ -29,7 +29,7 @@ const CdpList = () => {
     cdpId: "",
   });
 
-  const errorHandler = (error: any) => {
+  const handleError = (error: any) => {
     // Some error handling...
     console.error(error);
     toast.error(
@@ -41,6 +41,22 @@ const CdpList = () => {
   };
 
   const { getCdps } = useCdpService();
+
+  const handleServiceResponse = (response: CdpServiceResponse<any[]>) => {
+    if (response.isSuccess) {
+      setCdps(response.data);
+      setLayoutProgressVisiblity(false);
+    } else if (response.code === StatusCodes.AbortedDueMaxOffset) {
+      toast.error(
+        "We are not able to quickly resolve list of CDPs because there are no ones which are close enough to provided id. Please try with different id or type, since search could take a while and pontentially could be timed-out.",
+        { autoClose: 120000 }
+      );
+      setCdps([]);
+      setLayoutProgressVisiblity(false);
+    } else if (response.code === StatusCodes.Exception) {
+      handleError(response.error);
+    }
+  };
 
   const updateCollateralType = async (
     ev: React.ChangeEvent<HTMLSelectElement>
@@ -61,11 +77,7 @@ const CdpList = () => {
         setLayoutProgressPercentage
       );
 
-      if (response.isSuccess) {
-        setCdps(response.data);
-        setLayoutProgressVisiblity(false);
-      } else if (response.code === StatusCodes.Exception)
-        errorHandler(response.error);
+      handleServiceResponse(response);
     } else setCdps([]);
   };
 
@@ -83,11 +95,7 @@ const CdpList = () => {
         setLayoutProgressPercentage
       );
 
-      if (response.isSuccess) {
-        setCdps(response.data);
-        setLayoutProgressVisiblity(false);
-      } else if (response.code === StatusCodes.Exception)
-        errorHandler(response.error);
+      handleServiceResponse(response);
     } else setCdps([]);
   };
 

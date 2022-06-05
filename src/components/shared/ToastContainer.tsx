@@ -6,6 +6,7 @@ const ToastContainer = () => (
     hideProgressBar
     position="top-right"
     autoClose={2000}
+    bodyClassName="p-2"
   />
 );
 

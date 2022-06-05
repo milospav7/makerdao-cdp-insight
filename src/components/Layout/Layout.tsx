@@ -39,7 +39,7 @@ const Layout = ({ children }: IProps) => {
 
   const setLayoutProgressPercentage = useCallback(
     (percentage: number) =>
-      setContext((p) => ({ ...p, progressPercentage: percentage })),
+      setContext((p) => ({ ...p, progressPercentage: percentage + 2 })),
     []
   );
 
