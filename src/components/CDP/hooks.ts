@@ -101,7 +101,6 @@ export const useCdpService = () => {
           (topNotReached || bottomNotReached) &&
           isThisMostRecentExecution(currentTimestamp)
         ) {
-          console.log(queryParms.id);
           if (bottomNotReached) {
             const chunkSizeShouldBeReduced =
               currentBottomId < parallelismDegree; // Check to prevent hitting through 0 id
@@ -129,7 +128,6 @@ export const useCdpService = () => {
 
                 if (typeMatch && retreivedCdps.length < 20) {
                   retreivedCdps.push(cdp);
-                  currentBottomId = cdp.id - 1;
 
                   if (onProgressUpdate)
                     onProgressUpdate(
@@ -138,6 +136,7 @@ export const useCdpService = () => {
                 }
               }
             }
+            currentBottomId = currentBottomId - modifiedDegree;
           }
 
           if (topNotReached) {
@@ -158,7 +157,6 @@ export const useCdpService = () => {
 
                 if (typeMatch && retreivedCdps.length < 20) {
                   retreivedCdps.push(cdp);
-                  currentTopId = cdp.id + 1;
 
                   if (onProgressUpdate)
                     onProgressUpdate(
@@ -167,14 +165,18 @@ export const useCdpService = () => {
                 }
               }
             }
+            currentTopId = currentTopId + parallelismDegree;
           }
         }
-        console.log(retreivedCdps);
+
         if (isThisMostRecentExecution(currentTimestamp))
           return new RpcResponse<any[]>(true, StatusCodes.OK, retreivedCdps);
         else return new RpcResponse<any[]>(false, StatusCodes.Aborted, []);
       } catch (error) {
-        return new RpcResponse<any[]>(false, StatusCodes.Exception, [], error);
+        const code = isThisMostRecentExecution(currentTimestamp)
+          ? StatusCodes.Exception
+          : StatusCodes.Aborted;
+        return new RpcResponse<any[]>(false, code, [], error);
       }
     },
     [isTargetType, isThisMostRecentExecution, unprotectedGetCdp]
