@@ -17,6 +17,14 @@ const cdpColumns: IGridColumn[] = [
   { title: "Debt [DAI]", field: "debt" },
   { title: "Address", field: "userAddr" },
 ];
+const handleError = (error: any) => {
+  // Some error handling...
+  console.error(error);
+  toast.error(
+    "There was an error while trying to retreive CDPs. Try again with different inputs.",
+    { autoClose: 7000 }
+  );
+};
 
 const CdpList = () => {
   const { setLayoutProgressPercentage, setLayoutProgressVisiblity } =
@@ -28,17 +36,6 @@ const CdpList = () => {
     type: "ETH-A",
     cdpId: "",
   });
-
-  const handleError = (error: any) => {
-    // Some error handling...
-    console.error(error);
-    toast.error(
-      "There was an error while trying to retreive CDPs. Try again with different inputs.",
-      { autoClose: 7000 }
-    );
-    setLayoutProgressPercentage(0);
-    setLayoutProgressVisiblity(false);
-  };
 
   const { getCdps } = useCdpService();
 
@@ -54,8 +51,14 @@ const CdpList = () => {
       setCdps([]);
       setLayoutProgressVisiblity(false);
     } else if (response.code === StatusCodes.Exception) {
+      setLayoutProgressVisiblity(false);
       handleError(response.error);
     }
+  };
+
+  const displaySearchProgress = () => {
+    setLayoutProgressPercentage(2); // Set initial 2 percentage so user can clearly see that loading started
+    setLayoutProgressVisiblity(true);
   };
 
   const updateCollateralType = async (
@@ -66,8 +69,7 @@ const CdpList = () => {
       type: ev.target.value as CollateralType,
     }));
     if (inputs.cdpId) {
-      setLayoutProgressPercentage(0);
-      setLayoutProgressVisiblity(true);
+      displaySearchProgress();
 
       const response = await getCdps(
         {
@@ -78,7 +80,7 @@ const CdpList = () => {
       );
 
       handleServiceResponse(response);
-    } else setCdps([]);
+    }
   };
 
   const updateCdpId = async (id: string | null) => {
@@ -87,8 +89,7 @@ const CdpList = () => {
       cdpId: id,
     }));
     if (id) {
-      setLayoutProgressPercentage(0);
-      setLayoutProgressVisiblity(true);
+      displaySearchProgress();
 
       const response = await getCdps(
         { id: Number(id), type: inputs.type },
@@ -96,10 +97,14 @@ const CdpList = () => {
       );
 
       handleServiceResponse(response);
-    } else setCdps([]);
+    } else {
+      setLayoutProgressVisiblity(false);
+      setCdps([]);
+    }
   };
 
-  const goToCdpPage = (cdp: any) => navigate(`/cdp/${cdp.id}`);
+  const goToCdpPage = (cdp: any) =>
+    navigate(`/cdp/${cdp.id}`, { replace: true });
 
   return (
     <div>

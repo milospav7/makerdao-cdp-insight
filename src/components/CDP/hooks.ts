@@ -183,21 +183,22 @@ export const useCdpService = () => {
             maxOffsetNotReached = false;
         }
 
-        if (isThisMostRecentExecution(currentTimestamp)) {
-          if (maxOffsetNotReached)
-            return new CdpServiceResponse<any[]>(
-              true,
-              StatusCodes.OK,
-              retreivedCdps
-            );
-          else
-            return new CdpServiceResponse<any[]>(
-              false,
-              StatusCodes.AbortedDueMaxOffset,
-              retreivedCdps
-            );
-        } else
+        const executionAborted = !isThisMostRecentExecution(currentTimestamp);
+        if (executionAborted)
           return new CdpServiceResponse<any[]>(false, StatusCodes.Aborted, []);
+
+        if (maxOffsetNotReached)
+          return new CdpServiceResponse<any[]>(
+            true,
+            StatusCodes.OK,
+            retreivedCdps
+          );
+
+        return new CdpServiceResponse<any[]>(
+          false,
+          StatusCodes.AbortedDueMaxOffset,
+          retreivedCdps
+        );
       } catch (error) {
         const code = isThisMostRecentExecution(currentTimestamp)
           ? StatusCodes.Exception
