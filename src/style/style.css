@@ -3,6 +3,11 @@
   src: url("fonts/TitilliumWeb-Regular.ttf");
 }
 
+:root {
+  --font-color: #bcbdbc;
+  --bg-color: var(--bg-color);
+}
+
 html {
   box-sizing: border-box;
   font-size: 100%;
@@ -18,8 +23,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: "TitilliumWeb-Regular", sans-serif;
-  background-color: #202021;
-  color: #bcbdbc;
+  background-color: var(--bg-color);
+  color: var(--font-color);
 }
 
 h1,
@@ -172,23 +177,21 @@ a:active {
 }
 
 .border-light-silver {
-  border-color: #bcbdbc;
+  border-color: var(--font-color);
 }
 
 .form-control,
 .form-select {
   background-color: rgb(24, 26, 32) !important;
-  color: #bcbdbc !important;
+  color: var(--font-color) !important;
 }
 
-/* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
 }
