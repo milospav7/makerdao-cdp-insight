@@ -49,6 +49,23 @@ a:active {
   text-decoration: none;
 }
 
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: #f5f5f5;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+  background-color: #f5f5f5;
+}
+
+::-webkit-scrollbar-thumb {
+  height: 8px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 #root {
   height: 100vh;
 }
@@ -108,23 +125,6 @@ a:active {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-::-webkit-scrollbar-track {
-  border-radius: 10px;
-  background-color: #f5f5f5;
-}
-
-::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
-  background-color: #f5f5f5;
-}
-
-::-webkit-scrollbar-thumb {
-  height: 8px;
-  border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
 .glow {
   width: 0.75em;
   max-width: 100%;
@@ -155,11 +155,6 @@ a:active {
   z-index: -3;
 }
 
-.form-control:focus,
-.form-select:focus {
-  box-shadow: 0 0 0 0.12rem #0d6efd;
-}
-
 .absolute-centered {
   position: absolute;
   left: 50%;
@@ -184,6 +179,11 @@ a:active {
 .form-select {
   background-color: rgb(24, 26, 32) !important;
   color: var(--font-color) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 0.12rem #0d6efd;
 }
 
 input::-webkit-outer-spin-button,
