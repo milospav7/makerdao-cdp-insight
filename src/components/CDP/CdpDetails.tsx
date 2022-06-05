@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageLoader from "../shared/PageLoader";
 import SignMessageButton from "../shared/SignMessageButton";
+import { StatusCodes } from "../utils";
 import { useCdpService } from "./hooks";
 
 const errorHandler = (error: any) => {
@@ -14,15 +15,14 @@ const errorHandler = (error: any) => {
   );
 };
 
-const serviceOptions = { onError: errorHandler };
-
 const CdpDetails = () => {
   const { cdpId } = useParams();
+  const { getCdp } = useCdpService();
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
   const [signatures, setSignatures] = useState<string[]>([]);
   const [cdp, setCdp] = useState<any>({});
-  const { getCdp } = useCdpService(serviceOptions);
-  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -35,13 +35,18 @@ const CdpDetails = () => {
     }
 
     async function loadCdp() {
-      const cdp = await getCdp(parsedId);
+      const response = await getCdp(parsedId);
 
-      if (cdp.nonexistingCdp)
-        navigate("/resource-not-found", { replace: true });
-      else setCdp(cdp);
-
-      setLoading(false);
+      if (response.isSuccess) {
+        const cdp = response.data;
+        if (cdp.nonexistingCdp)
+          navigate("/resource-not-found", { replace: true });
+        else {
+          setCdp(cdp);
+          setLoading(false);
+        }
+      } else if (response.code === StatusCodes.Exception)
+        errorHandler(response.error);
     }
 
     loadCdp();

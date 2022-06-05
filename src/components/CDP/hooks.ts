@@ -2,7 +2,8 @@ import { bytesToString } from "@defisaver/tokens/esm/utils";
 import { useCallback, useMemo, useRef } from "react";
 import Web3 from "web3";
 import Contract from "../../contracts/VaultInfo/Contract";
-import { CollateralType, TQueryParams, TServiceOptions } from "./types";
+import { RpcResponse, StatusCodes } from "../utils";
+import { CollateralType, TQueryParams } from "./types";
 
 const INVALID_STATE = "0x0000000000000000000000000000000000000000";
 
@@ -13,7 +14,7 @@ export const useWeb3 = () => {
   return web3;
 };
 
-export const useCdpService = (options: TServiceOptions) => {
+export const useCdpService = () => {
   let timestampOfLastExec = useRef(0);
   const web3 = useWeb3();
   const { abi, addres } = Contract;
@@ -53,12 +54,21 @@ export const useCdpService = (options: TServiceOptions) => {
     async (id: number) => {
       try {
         const result = await contract.methods.getCdpInfo(id).call();
-        return enrichCdp(id, result);
+        const cdp = enrichCdp(id, result);
+        return new RpcResponse<any>(true, StatusCodes.OK, cdp);
       } catch (error) {
-        options.onError(error);
+        return new RpcResponse<any>(false, StatusCodes.Exception, null, error);
       }
     },
-    [contract.methods, enrichCdp, options]
+    [contract.methods, enrichCdp]
+  );
+
+  const unprotectedGetCdp = useCallback(
+    async (id: number) => {
+      const result = await contract.methods.getCdpInfo(id).call();
+      return enrichCdp(id, result);
+    },
+    [contract.methods, enrichCdp]
   );
 
   const isThisMostRecentExecution = useCallback(
@@ -105,7 +115,7 @@ export const useCdpService = (options: TServiceOptions) => {
             );
 
             let bottomIdsResponse = await Promise.all(
-              bottomIds.map((id) => getCdp(id))
+              bottomIds.map((id) => unprotectedGetCdp(id))
             );
 
             for (const cdp of bottomIdsResponse) {
@@ -137,7 +147,7 @@ export const useCdpService = (options: TServiceOptions) => {
             );
 
             let topIdsResponse = await Promise.all(
-              topIds.map((id) => getCdp(id))
+              topIds.map((id) => unprotectedGetCdp(id))
             );
 
             for (const cdp of topIdsResponse) {
@@ -160,19 +170,14 @@ export const useCdpService = (options: TServiceOptions) => {
           }
         }
         console.log(retreivedCdps);
-        return {
-          result: retreivedCdps,
-          aborted: !isThisMostRecentExecution(currentTimestamp),
-        };
+        if (isThisMostRecentExecution(currentTimestamp))
+          return new RpcResponse<any[]>(true, StatusCodes.OK, retreivedCdps);
+        else return new RpcResponse<any[]>(false, StatusCodes.Aborted, []);
       } catch (error) {
-        options.onError(error);
-        return {
-          result: [],
-          aborted: !isThisMostRecentExecution(currentTimestamp),
-        };
+        return new RpcResponse<any[]>(false, StatusCodes.Exception, [], error);
       }
     },
-    [getCdp, isTargetType, isThisMostRecentExecution, options]
+    [isTargetType, isThisMostRecentExecution, unprotectedGetCdp]
   );
 
   return { getCdp, getCdps };

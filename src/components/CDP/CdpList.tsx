@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { useLayoutContext } from "../Auth/hooks";
 import { DebouncedInput } from "../shared/DebouncedInput";
 import Grid from "../shared/Grid";
+import { StatusCodes } from "../utils";
 import { useCdpService } from "./hooks";
 import { CollateralType, IGridColumn, InputsState } from "./types";
 
@@ -39,7 +40,7 @@ const CdpList = () => {
     setLayoutProgressVisiblity(false);
   };
 
-  const { getCdps } = useCdpService({ onError: errorHandler });
+  const { getCdps } = useCdpService();
 
   const updateCollateralType = async (
     ev: React.ChangeEvent<HTMLSelectElement>
@@ -52,7 +53,7 @@ const CdpList = () => {
       setLayoutProgressPercentage(0);
       setLayoutProgressVisiblity(true);
 
-      const output = await getCdps(
+      const response = await getCdps(
         {
           id: Number(inputs.cdpId),
           type: ev.target.value as CollateralType,
@@ -60,10 +61,11 @@ const CdpList = () => {
         setLayoutProgressPercentage
       );
 
-      if (!output.aborted) {
-        setCdps(output.result);
+      if (response.isSuccess) {
+        setCdps(response.data);
         setLayoutProgressVisiblity(false);
-      }
+      } else if (response.code === StatusCodes.Exception)
+        errorHandler(response.error);
     } else setCdps([]);
   };
 
@@ -76,15 +78,16 @@ const CdpList = () => {
       setLayoutProgressPercentage(0);
       setLayoutProgressVisiblity(true);
 
-      const output = await getCdps(
+      const response = await getCdps(
         { id: Number(id), type: inputs.type },
         setLayoutProgressPercentage
       );
 
-      if (!output.aborted) {
-        setCdps(output.result);
+      if (response.isSuccess) {
+        setCdps(response.data);
         setLayoutProgressVisiblity(false);
-      }
+      } else if (response.code === StatusCodes.Exception)
+        errorHandler(response.error);
     } else setCdps([]);
   };
 
