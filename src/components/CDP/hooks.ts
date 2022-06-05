@@ -2,7 +2,7 @@ import { bytesToString } from "@defisaver/tokens/esm/utils";
 import { useCallback, useMemo, useRef } from "react";
 import Web3 from "web3";
 import Contract from "../../contracts/VaultInfo/Contract";
-import { CdpServiceResponse, StatusCodes } from "../utils";
+import { CdpServiceResponse, StatusCodes } from "./utils";
 import { CollateralType, TQueryParams } from "./types";
 
 const INVALID_STATE = "0x0000000000000000000000000000000000000000";

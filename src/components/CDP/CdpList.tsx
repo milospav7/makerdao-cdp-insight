@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { useLayoutContext } from "../Auth/hooks";
 import { DebouncedInput } from "../shared/DebouncedInput";
 import Grid from "../shared/Grid";
-import { CdpServiceResponse, StatusCodes } from "../utils";
+import { CdpServiceResponse, StatusCodes } from "./utils";
 import { useCdpService } from "./hooks";
 import { CollateralType, IGridColumn, InputsState } from "./types";
 

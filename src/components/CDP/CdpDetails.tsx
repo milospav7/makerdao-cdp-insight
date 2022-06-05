@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageLoader from "../shared/PageLoader";
 import SignMessageButton from "../shared/SignMessageButton";
-import { StatusCodes } from "../utils";
+import { StatusCodes } from "./utils";
 import { useCdpService } from "./hooks";
 
 const errorHandler = (error: any) => {
