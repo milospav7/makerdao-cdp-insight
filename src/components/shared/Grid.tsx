@@ -35,7 +35,7 @@ const Grid = ({
             >
               {columns.map((c, ind) => (
                 <td width={1} key={`td_${ind}`}>
-                  {d[c.field]}
+                  {c.formater ? c.formater(d[c.field]) : d[c.field]}
                 </td>
               ))}
             </tr>

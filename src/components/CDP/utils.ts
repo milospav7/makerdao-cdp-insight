@@ -22,3 +22,8 @@ export class CdpServiceResponse<T> {
     this.error = error;
   }
 }
+
+export const formatNumber = (x: string | number) => {
+  if (x) return Number(x).toLocaleString();
+  return x;
+};

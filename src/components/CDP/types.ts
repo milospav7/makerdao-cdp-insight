@@ -17,6 +17,7 @@ export type TQueryParams = {
 export interface IGridColumn {
   field: string;
   title: string;
+  formater?: (data: any) => any;
 }
 
 export interface IGridProps {
@@ -29,3 +30,7 @@ export interface IGridProps {
 export interface ICdpDetailsProps {
   cdpId: string;
 }
+
+export type TCollateralPricePerType = {
+  [key in CollateralType]: number;
+};

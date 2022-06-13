@@ -3,8 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageLoader from "../shared/PageLoader";
 import SignMessageButton from "../shared/SignMessageButton";
-import { StatusCodes } from "./utils";
+import { formatNumber, StatusCodes } from "./utils";
 import { useCdpService } from "./hooks";
+import { CollateralType, TCollateralPricePerType } from "./types";
+
+const PricePerAssetType: TCollateralPricePerType = {
+  "ETH-A": 1238,
+  "WBTC-A": 24104,
+  "USDC-A": 1,
+}; // In dollars
 
 const errorHandler = (error: any) => {
   // Some error handling...
@@ -53,62 +60,101 @@ const CdpDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cdpId]);
 
+  if (loading) return <PageLoader />;
+
   const updateSignatures = (signature: string) =>
     setSignatures((p) => [...p, signature]);
 
   const getLiquidationRatio = () => {
-    if (cdp.type === "ETH-A" || cdp.type === "WBTC-A") return "145%";
-    if (cdp.type === "USDC-A") return "101%";
-    return "";
+    if (cdp.type === "ETH-A" || cdp.type === "WBTC-A") return 145;
+    if (cdp.type === "USDC-A") return 101;
+    return 0;
   };
 
-  if (loading) return <PageLoader />;
+  // Liquidation Price = (Generated Dai * Liquidation Ratio) / (Amount of Collateral)
+  // https://www.reddit.com/r/MakerDAO/comments/9gs6sc/trying_to_figure_out_liquidation_price/
+  const calculateLiqudationPrice = () => {
+    if (cdp.collateral > 0) {
+      const liqRatio = getLiquidationRatio();
+      const liqudationPrice = (cdp.debt * liqRatio) / (100 * cdp.collateral); // Missing PETH/ETH param?
+      return formatNumber(liqudationPrice);
+    }
+
+    return 0;
+  };
+
+  // Collateral ratio is the ratio between the Dollar value of the collateral in your position and its debt in LUSD
+  const calculateCollateralRatio = () => {
+    if (cdp.collateral > 0 && cdp.debt > 0) {
+      const currentPrice = PricePerAssetType[cdp.type as CollateralType];
+      const collateralValue: number = currentPrice * cdp.collateral;
+      return ((collateralValue / cdp.debt) * 100).toFixed(2);
+    }
+
+    return 0;
+  };
+
+  const calculateMaxDebt = () => {
+    if (cdp.collateral > 0 && cdp.debt > 0) {
+      const liqRatio = getLiquidationRatio();
+      const currentPrice = PricePerAssetType[cdp.type as CollateralType];
+      const collateralValue: number = currentPrice * cdp.collateral;
+      const maxDebt = ((collateralValue / liqRatio) * 100).toFixed(2);
+      return formatNumber(maxDebt);
+    }
+
+    return 0;
+  };
 
   return (
     <div className="bg-dark-overlay px-3 h-100">
       <div className="d-flex flex-row flex-wrap align-items-center justify-content-between">
         <div className="bg-light-overlay rounded px-3 small py-1">
           <p className="mb-0">
-            Collateralization Ratio: <b>180%</b>
+            Collateralization Ratio: <b>{calculateCollateralRatio()}%</b>
           </p>
         </div>
         <div className="bg-light-overlay rounded px-3 small py-1">
           <p className="mb-0">
-            Liqudation Ratio: <b>{getLiquidationRatio()}</b>
+            Liqudation Ratio: <b>{getLiquidationRatio()}%</b>
           </p>
         </div>
         <div className="bg-light-overlay rounded px-3 small py-1">
           <p className="mb-0">
-            Max Collateral locked: <b>{cdp.collateral}</b>
+            Liquidation price: <b>{calculateLiqudationPrice()}$</b>
           </p>
         </div>
         <div className="bg-light-overlay rounded px-3 small py-1">
           <p className="mb-0">
-            Max DAI Debt: <b>{cdp.collateral}</b>
+            Max Debt: <b>{calculateMaxDebt()} DAI</b>
           </p>
         </div>
       </div>
       <hr className="my-4" />
       <div>
         <h5 className="mb-3 fw-bold text">CDP INFORMATION</h5>
+
         <div className="ps-2">
           <p>
             Id: <b>{cdp.id}</b>
           </p>
           <p>
-            Type: <b>{cdp.type}</b>
+            Current {cdp.type} price:
+            <b>
+              {formatNumber(PricePerAssetType[cdp.type as CollateralType])} $
+            </b>
           </p>
           <p>
-            Collateral: <b>{cdp.collateral}</b>
+            Collateral:
+            <b>
+              {formatNumber(cdp.collateral)} {cdp.type}
+            </b>
           </p>
           <p>
-            Debt: <b>{cdp.debt} DAI</b>
+            Debt: <b>{formatNumber(cdp.debt)} DAI</b>
           </p>
           <p>
             Address: <b>{cdp.userAddr}</b>
-          </p>
-          <p>
-            Owner: <b>{cdp.owner}</b>
           </p>
         </div>
       </div>
