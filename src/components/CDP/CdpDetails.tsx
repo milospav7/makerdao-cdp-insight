@@ -65,6 +65,7 @@ const CdpDetails = () => {
   const updateSignatures = (signature: string) =>
     setSignatures((p) => [...p, signature]);
 
+  // The minimum required collateralization level - for example, a Vault with a 150% Liquidation Ratio will require a minimum $1.50 of collateral value for every $1 of Dai generated
   const getLiquidationRatio = () => {
     if (cdp.type === "ETH-A" || cdp.type === "WBTC-A") return 145;
     if (cdp.type === "USDC-A") return 101;
@@ -88,7 +89,8 @@ const CdpDetails = () => {
     if (cdp.collateral > 0 && cdp.debt > 0) {
       const currentPrice = PricePerAssetType[cdp.type as CollateralType];
       const collateralValue: number = currentPrice * cdp.collateral;
-      return ((collateralValue / cdp.debt) * 100).toFixed(2);
+      const ratio = ((collateralValue / cdp.debt) * 100).toFixed(2);
+      return formatNumber(ratio);
     }
 
     return 0;
@@ -109,24 +111,24 @@ const CdpDetails = () => {
   return (
     <div className="bg-dark-overlay px-3 h-100">
       <div className="d-flex flex-row flex-wrap align-items-center justify-content-between">
-        <div className="bg-light-overlay rounded px-3 small py-1">
-          <p className="mb-0">
-            Collateralization Ratio: <b>{calculateCollateralRatio()}%</b>
+        <div className="bg-light-overlay rounded px-3 small py-2">
+          <p className="mb-0 fw-bold">
+            COLL. RATIO: <b>{calculateCollateralRatio()} %</b>
           </p>
         </div>
-        <div className="bg-light-overlay rounded px-3 small py-1">
-          <p className="mb-0">
-            Liqudation Ratio: <b>{getLiquidationRatio()}%</b>
+        <div className="bg-light-overlay rounded px-3 small py-2">
+          <p className="mb-0 fw-bold">
+            LIQ. RATIO: <b>{getLiquidationRatio()} %</b>
           </p>
         </div>
-        <div className="bg-light-overlay rounded px-3 small py-1">
-          <p className="mb-0">
-            Liquidation price: <b>{calculateLiqudationPrice()}$</b>
+        <div className="bg-light-overlay rounded px-3 small py-2">
+          <p className="mb-0 fw-bold">
+            LIQ. PRICE: <b>{calculateLiqudationPrice()} $</b>
           </p>
         </div>
-        <div className="bg-light-overlay rounded px-3 small py-1">
-          <p className="mb-0">
-            Max Debt: <b>{calculateMaxDebt()} DAI</b>
+        <div className="bg-light-overlay rounded px-3 small py-2">
+          <p className="mb-0 fw-bold">
+            MAX DEBT: <b>{calculateMaxDebt()} DAI</b>
           </p>
         </div>
       </div>
