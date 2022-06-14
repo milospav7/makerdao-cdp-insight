@@ -97,7 +97,7 @@ const CdpDetails = () => {
   };
 
   const calculateMaxDebt = () => {
-    if (cdp.collateral > 0 && cdp.debt > 0) {
+    if (cdp.collateral > 0) {
       const liqRatio = getLiquidationRatio();
       const currentPrice = PricePerAssetType[cdp.type as CollateralType];
       const collateralValue: number = currentPrice * cdp.collateral;
