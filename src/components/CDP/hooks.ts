@@ -24,6 +24,10 @@ export const useCdpService = () => {
     [abi, addres, web3.eth.Contract]
   );
 
+  const abortGetCdpsExecution = useCallback(() => {
+    timestampOfLastExec.current = new Date().getTime();
+  }, []);
+
   const isNonexistingCdp = useCallback(
     (cdp: any) =>
       cdp.owner === INVALID_STATE &&
@@ -207,5 +211,5 @@ export const useCdpService = () => {
     [isTargetType, isThisMostRecentExecution, unprotectedGetCdp]
   );
 
-  return { getCdp, getCdps };
+  return { getCdp, getCdps, abortGetCdpsExecution };
 };

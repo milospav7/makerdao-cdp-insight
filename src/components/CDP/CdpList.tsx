@@ -30,7 +30,7 @@ const CdpList = () => {
   const { setLayoutProgressPercentage, setLayoutProgressVisiblity } =
     useLayoutContext();
   const navigate = useNavigate();
-  const { getCdps } = useCdpService();
+  const { getCdps, abortGetCdpsExecution } = useCdpService();
 
   const [cdps, setCdps] = useState<any[]>([]);
   const [inputs, setInputs] = useState<InputsState>({
@@ -127,6 +127,7 @@ const CdpList = () => {
         handleServiceResponse(response);
       }
     } else {
+      abortGetCdpsExecution();
       setValidation({
         idIsInvalid: false,
         typeIsInvalid: false,
