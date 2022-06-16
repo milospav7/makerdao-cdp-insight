@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Col, Form, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -42,6 +42,10 @@ const CdpList = () => {
     typeIsInvalid: false,
     message: "",
   });
+
+  // Safe cleanup on unmount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => () => abortGetCdpsExecution(), []);
 
   const validateInputId = (id: string) => {
     const parsedId = Number(id);
