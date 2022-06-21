@@ -30,7 +30,7 @@ const CdpList = () => {
   const { setLayoutProgressPercentage, setLayoutProgressVisiblity } =
     useLayoutContext();
   const navigate = useNavigate();
-  const { getCdps, abortGetCdpsExecution } = useCdpService();
+  const { getCdps_Optimized: getCdps, abortGetCdpsExecution } = useCdpService();
 
   const [cdps, setCdps] = useState<any[]>([]);
   const [inputs, setInputs] = useState<InputsState>({

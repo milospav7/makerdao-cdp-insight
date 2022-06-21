@@ -211,5 +211,113 @@ export const useCdpService = () => {
     [isTargetType, isThisMostRecentExecution, unprotectedGetCdp]
   );
 
-  return { getCdp, getCdps, abortGetCdpsExecution };
+  const getIndexedResponse = useCallback(
+    async (cdpId: number, index: number) => {
+      const cdp = await unprotectedGetCdp(cdpId);
+      return { cdp, index };
+    },
+    [unprotectedGetCdp]
+  );
+
+  const getCdps_Optimized = useCallback(
+    async (
+      queryParms: TQueryParams,
+      onProgressUpdate?: (progress: number) => void
+    ) => {
+      const currentTimestamp = new Date().getTime();
+      timestampOfLastExec.current = currentTimestamp;
+
+      try {
+        const { id, type } = queryParms;
+        const parallelismDegree = 5;
+        const expectedListSize = 20;
+
+        const maxOffset = 150;
+        let retreivedCdps: any[] = [];
+        let topNotReached = true;
+        let bottomNotReached = true;
+        let maxOffsetNotReached = true;
+        let currentTopId = id;
+        let currentBottomId = id - 1;
+
+        const topIds = [...Array(parallelismDegree).keys()].map(
+          // eslint-disable-next-line no-loop-func
+          (x) => currentTopId + x
+        );
+
+        let promises = topIds.map((id, ind) => getIndexedResponse(id, ind));
+        let maxId = topIds[topIds.length - 1];
+        let mindId = topIds[0];
+        let goUp = true;
+
+        while (
+          retreivedCdps.length < expectedListSize &&
+          (topNotReached || bottomNotReached) &&
+          maxOffsetNotReached &&
+          isThisMostRecentExecution(currentTimestamp)
+        ) {
+          const { cdp, index } = await Promise.race(promises);
+          const typeMatch = isTargetType(cdp.ilk, type);
+
+          if (typeMatch && retreivedCdps.length < expectedListSize) {
+            retreivedCdps.push(cdp);
+          }
+
+          if (retreivedCdps.length < expectedListSize) {
+            if (goUp && topNotReached) {
+              const newId = maxId + 1;
+              maxId += 1;
+              promises[index] = getIndexedResponse(newId, index);
+
+              if (cdp.nonexistingCdp) topNotReached = false;
+            } else if (bottomNotReached) {
+              const newId = mindId - 1;
+              mindId -= 1;
+              promises[index] = getIndexedResponse(newId, index);
+
+              const lastBottomIdProcessed = cdp.id === 1;
+              if (lastBottomIdProcessed) bottomNotReached = false;
+            }
+
+            if (onProgressUpdate && retreivedCdps.length)
+              onProgressUpdate(
+                Math.ceil((retreivedCdps.length / expectedListSize) * 100)
+              );
+
+            const offsetReached =
+              currentBottomId - id > maxOffset || currentTopId - id > maxOffset;
+            if (offsetReached && retreivedCdps.length < 0.5 * expectedListSize)
+              maxOffsetNotReached = false;
+
+            goUp = !goUp; // Switch direction
+          }
+        }
+
+        const executionAborted = !isThisMostRecentExecution(currentTimestamp);
+        if (executionAborted)
+          return new CdpServiceResponse<any[]>(false, StatusCodes.Aborted, []);
+
+        if (maxOffsetNotReached)
+          return new CdpServiceResponse<any[]>(
+            true,
+            StatusCodes.OK,
+            retreivedCdps
+          );
+
+        return new CdpServiceResponse<any[]>(
+          true,
+          StatusCodes.OK,
+          retreivedCdps
+        );
+      } catch (error) {
+        const code = isThisMostRecentExecution(currentTimestamp)
+          ? StatusCodes.Exception
+          : StatusCodes.Aborted;
+        return new CdpServiceResponse<any[]>(false, code, [], error);
+      }
+    },
+    [getIndexedResponse, isTargetType, isThisMostRecentExecution]
+  );
+
+  return { getCdp, getCdps, getCdps_Optimized, abortGetCdpsExecution };
 };
