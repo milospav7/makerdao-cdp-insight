@@ -86,6 +86,25 @@ export const useCdpService = () => {
     []
   );
 
+  const constructResponse = useCallback(
+    (executionTimestamp: number, offsetNotReached: boolean, cdps: any[]) => {
+      const executionAborted = !isThisMostRecentExecution(executionTimestamp);
+
+      if (executionAborted)
+        return new CdpServiceResponse<any[]>(false, StatusCodes.Aborted, []);
+
+      if (offsetNotReached)
+        return new CdpServiceResponse<any[]>(true, StatusCodes.OK, cdps);
+
+      return new CdpServiceResponse<any[]>(
+        false,
+        StatusCodes.AbortedDueMaxOffset,
+        cdps
+      );
+    },
+    [isThisMostRecentExecution]
+  );
+
   const getCdps = useCallback(
     async (
       queryParms: TQueryParams,
@@ -185,22 +204,15 @@ export const useCdpService = () => {
             maxOffsetNotReached = false;
         }
 
-        const executionAborted = !isThisMostRecentExecution(currentTimestamp);
-        if (executionAborted)
-          return new CdpServiceResponse<any[]>(false, StatusCodes.Aborted, []);
+        retreivedCdps.sort((a, b) => a.id - b.id);
 
-        if (maxOffsetNotReached)
-          return new CdpServiceResponse<any[]>(
-            true,
-            StatusCodes.OK,
-            retreivedCdps
-          );
-
-        return new CdpServiceResponse<any[]>(
-          false,
-          StatusCodes.AbortedDueMaxOffset,
+        const response = constructResponse(
+          currentTimestamp,
+          maxOffsetNotReached,
           retreivedCdps
         );
+
+        return response;
       } catch (error) {
         const code = isThisMostRecentExecution(currentTimestamp)
           ? StatusCodes.Exception
@@ -208,7 +220,12 @@ export const useCdpService = () => {
         return new CdpServiceResponse<any[]>(false, code, [], error);
       }
     },
-    [isTargetType, isThisMostRecentExecution, unprotectedGetCdp]
+    [
+      constructResponse,
+      isTargetType,
+      isThisMostRecentExecution,
+      unprotectedGetCdp,
+    ]
   );
 
   const getIndexedResponse = useCallback(
@@ -219,6 +236,7 @@ export const useCdpService = () => {
     [unprotectedGetCdp]
   );
 
+  /* Using promise race in order to increase time efficiency */
   const getCdps_Optimized = useCallback(
     async (
       queryParms: TQueryParams,
@@ -237,17 +255,15 @@ export const useCdpService = () => {
         let topNotReached = true;
         let bottomNotReached = true;
         let maxOffsetNotReached = true;
-        let currentTopId = id;
-        let currentBottomId = id - 1;
 
-        const topIds = [...Array(parallelismDegree).keys()].map(
+        const ids = [...Array(parallelismDegree).keys()].map(
           // eslint-disable-next-line no-loop-func
-          (x) => currentTopId + x
+          (x) => id + x
         );
 
-        let promises = topIds.map((id, ind) => getIndexedResponse(id, ind));
-        let maxId = topIds[topIds.length - 1];
-        let mindId = topIds[0];
+        let promises = ids.map((id, ind) => getIndexedResponse(id, ind));
+        let maxId = ids[ids.length - 1];
+        let mindId = ids[0];
         let goUp = true;
 
         while (
@@ -258,13 +274,17 @@ export const useCdpService = () => {
         ) {
           const { cdp, index } = await Promise.race(promises);
           const typeMatch = isTargetType(cdp.ilk, type);
-          const lastBottomIdProcessed = cdp.id === 1;
-          
+          const lastBottomIdProcessed = mindId === 1;
+
           if (lastBottomIdProcessed) bottomNotReached = false;
           if (cdp.nonexistingCdp) topNotReached = false;
 
           if (typeMatch && retreivedCdps.length < expectedListSize) {
             retreivedCdps.push(cdp);
+            if (onProgressUpdate)
+              onProgressUpdate(
+                Math.ceil((retreivedCdps.length / expectedListSize) * 100)
+              );
           }
 
           if (retreivedCdps.length < expectedListSize) {
@@ -278,36 +298,27 @@ export const useCdpService = () => {
               promises[index] = getIndexedResponse(newId, index);
             }
 
-            if (onProgressUpdate && retreivedCdps.length)
-              onProgressUpdate(
-                Math.ceil((retreivedCdps.length / expectedListSize) * 100)
-              );
-
-            const offsetReached =
-              currentBottomId - id > maxOffset || currentTopId - id > maxOffset;
-            if (offsetReached && retreivedCdps.length < 0.5 * expectedListSize)
-              maxOffsetNotReached = false;
-
-            goUp = !goUp; // Switch direction
+            if (bottomNotReached && topNotReached)
+              goUp = !goUp; // Switch direction
+            else if (bottomNotReached) goUp = false;
+            else if (topNotReached) goUp = true;
           }
+
+          const offsetReached =
+            mindId - id > maxOffset || maxId - id > maxOffset;
+          if (offsetReached && retreivedCdps.length < 0.5 * expectedListSize)
+            maxOffsetNotReached = false;
         }
 
-        const executionAborted = !isThisMostRecentExecution(currentTimestamp);
-        if (executionAborted)
-          return new CdpServiceResponse<any[]>(false, StatusCodes.Aborted, []);
+        retreivedCdps.sort((a, b) => a.id - b.id);
 
-        if (maxOffsetNotReached)
-          return new CdpServiceResponse<any[]>(
-            true,
-            StatusCodes.OK,
-            retreivedCdps
-          );
-
-        return new CdpServiceResponse<any[]>(
-          true,
-          StatusCodes.OK,
+        const response = constructResponse(
+          currentTimestamp,
+          maxOffsetNotReached,
           retreivedCdps
         );
+
+        return response;
       } catch (error) {
         const code = isThisMostRecentExecution(currentTimestamp)
           ? StatusCodes.Exception
@@ -315,7 +326,12 @@ export const useCdpService = () => {
         return new CdpServiceResponse<any[]>(false, code, [], error);
       }
     },
-    [getIndexedResponse, isTargetType, isThisMostRecentExecution]
+    [
+      constructResponse,
+      getIndexedResponse,
+      isTargetType,
+      isThisMostRecentExecution,
+    ]
   );
 
   return { getCdp, getCdps, getCdps_Optimized, abortGetCdpsExecution };
