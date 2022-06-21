@@ -258,6 +258,10 @@ export const useCdpService = () => {
         ) {
           const { cdp, index } = await Promise.race(promises);
           const typeMatch = isTargetType(cdp.ilk, type);
+          const lastBottomIdProcessed = cdp.id === 1;
+          
+          if (lastBottomIdProcessed) bottomNotReached = false;
+          if (cdp.nonexistingCdp) topNotReached = false;
 
           if (typeMatch && retreivedCdps.length < expectedListSize) {
             retreivedCdps.push(cdp);
@@ -268,15 +272,10 @@ export const useCdpService = () => {
               const newId = maxId + 1;
               maxId += 1;
               promises[index] = getIndexedResponse(newId, index);
-
-              if (cdp.nonexistingCdp) topNotReached = false;
             } else if (bottomNotReached) {
               const newId = mindId - 1;
               mindId -= 1;
               promises[index] = getIndexedResponse(newId, index);
-
-              const lastBottomIdProcessed = cdp.id === 1;
-              if (lastBottomIdProcessed) bottomNotReached = false;
             }
 
             if (onProgressUpdate && retreivedCdps.length)
