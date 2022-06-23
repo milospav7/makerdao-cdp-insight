@@ -289,13 +289,11 @@ export const useCdpService = () => {
 
           if (retreivedCdps.length < expectedListSize) {
             if (goUp && topNotReached) {
-              const newId = maxId + 1;
               maxId += 1;
-              promises[index] = getIndexedResponse(newId, index);
+              promises[index] = getIndexedResponse(maxId, index);
             } else if (bottomNotReached) {
-              const newId = mindId - 1;
               mindId -= 1;
-              promises[index] = getIndexedResponse(newId, index);
+              promises[index] = getIndexedResponse(mindId, index);
             }
 
             if (bottomNotReached && topNotReached)
